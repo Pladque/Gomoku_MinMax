@@ -1,6 +1,7 @@
 from Logic import GetWinner
 from pygame import time
 from AI import AI
+from termcolor import colored
 
 clock = time.Clock()
 
@@ -13,12 +14,36 @@ BOARD = [
 [0 ,0, 0],
 [0 ,0, 0],
 ]
+turn = 'X'
+depth = 9
 
-opponent = AI(BOARD)
+opponent = AI(AI_character = 'O')
+player_char = 'X'
 
 
 while GetWinner(BOARD) == -1:
-    clock.tick(30)
-    #showBoard()
+    if turn == opponent.AI_character: 
+        move = opponent.FindBestMove(BOARD, opponent.AI_character, depth, True)
+        BOARD[move[1]][move[0]] = opponent.AI_character
+        
+        turn = player_char
+        depth -=1
+    else:
+        showBoard()
+        
+        player_move_x = int (input('X: '))
+        player_move_y = int(input('Y: '))
+
+        BOARD[player_move_y][player_move_x] = player_char
+
+        turn = opponent.AI_character
+
+        depth -=1
+
+    clock.tick(2)
+
+showBoard()
+print(colored('WINNER: ', 'green'), end = '')
+print(colored(GetWinner(BOARD), 'green'))
 
 
