@@ -16,11 +16,18 @@ class AI:
         if depth == 0 or all_moves is []:
             return EvalBoard(board, self.AI_character, self.player_char)
         
+        winner = GetWinner(board)
+        if winner == self.AI_character:
+            return 10
+        elif winner == self.player_char:
+            return -10
+
+        
         my_board = copy_board(board)
         best_score = -1000
         chosen_move = 0
 
-        #if topLevel: print(all_moves)
+        if topLevel: print(all_moves)
 
         if turn == self.AI_character:
             for move in all_moves:

@@ -4,7 +4,6 @@ from AI import AI
 from termcolor import colored
 
 clock = time.Clock()
-
 def showBoard():
     for row in BOARD:
         print(row)
@@ -14,14 +13,14 @@ BOARD = [
 [0 ,0, 0],
 [0 ,0, 0],
 ]
-turn = 'X'
+turn = 'O'
 depth = 9
 
-opponent = AI(AI_character = 'O')
-player_char = 'X'
+opponent = AI(AI_character = 'X')
+player_char = 'O'
 
-
-while GetWinner(BOARD) == -1:
+winner = '-1'
+while winner == '-1':
     if turn == opponent.AI_character: 
         move = opponent.FindBestMove(BOARD, opponent.AI_character, depth, True)
         BOARD[move[1]][move[0]] = opponent.AI_character
@@ -35,15 +34,16 @@ while GetWinner(BOARD) == -1:
         player_move_y = int(input('Y: '))
 
         BOARD[player_move_y][player_move_x] = player_char
-
         turn = opponent.AI_character
-
         depth -=1
 
-    clock.tick(2)
+    winner = GetWinner(BOARD)
+    clock.tick(1)
 
 showBoard()
+
 print(colored('WINNER: ', 'green'), end = '')
-print(colored(GetWinner(BOARD), 'green'))
+print(colored(winner, 'green'))
+
 
 

@@ -1,5 +1,4 @@
-import random
-def GetWinner(board):
+def GetWinner(board) ->str:
     for x in range(3):
         if board[x][0]== board[x][1]== board[x][2]:
             if board[x][1] != 0:
@@ -17,11 +16,11 @@ def GetWinner(board):
     for row in board:
         for field in row:
             if field == 0:
-                return -1
+                return '-1'
             
     return 'None'
 
-def GetAllMoves(board):
+def GetAllMoves(board)->int:
     moves = []
     for y, row in enumerate(board):
         for x, field in enumerate(row):
@@ -30,10 +29,12 @@ def GetAllMoves(board):
 
     return moves
 
-def EvalBoard(board, maximaler, minimaler):
+def EvalBoard(board, maximaler:str, minimaler:str)->int:
     winner = GetWinner(board)
-    if winner == maximaler: return 10
-    elif winner == minimaler: return -10
+    if winner == maximaler: 
+        return 10
+    elif winner == minimaler: 
+        return -10
     else: return 0
 
 def copy_board( board):
