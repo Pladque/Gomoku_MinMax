@@ -18,16 +18,66 @@ MinMax::MinMax(char AI_Char)
 
 }
 
-int MinMax::FindBestMove(int **board, char turn, int depth, bool topLevel = false)
+int MinMax::FindBestMove(int **board, char turn, int depth,char maximaler,char minimaler,  bool topLevel = false)
 {
-    int **all_moves =  GetAllMoves(board);
+    vector<vector<bool>> all_moves =  GetAllMoves(board);
 
-    if (depth == 0 or all_moves)
+    if (depth == 0)
+    {
+        return EvalBoard(board,  maximaler,  minimaler)
+    }
 
-    return 1;
+    int [15][15]my_board = board;    //change it to copying later
+    int bestscore = -1000;
+    vector<vector<int>> chosenMove = {-1,-1};
+
+    if (turn == maximaler)
+    {
+        for (int i=0; i<15; i++)
+        {
+            for (int j=0; j<15; j++)
+            {
+                if(all_moves[i][j] == true)
+                {
+                    myboard[i][j] = maximaler;
+                    temp = indBestMove(myboard,  minimaler,  depth-1, maximaler, minimaler)
+
+                    if(temp>bestscore)
+                    {
+                        bestscore = temp
+                        chosenMove = {i,j}
+                    }
+                }
+            }
+        }
+    }
+    else
+    {   
+        bestscore = 1000
+         for (int i=0; i<15; i++)
+        {
+            for (int j=0; j<15; j++)
+            {
+                if(all_moves[i][j] == true)
+                {
+                    myboard[i][j] = minimaler;
+                    temp = indBestMove(myboard,  maximaler,  depth-1, maximaler, minimaler)
+
+                    if(temp<bestscore)
+                    {
+                        bestscore = temp
+                        chosenMove = {i,j}
+                    }
+                }
+            }
+        }
+
+    }
+
+    return bestscore
 }
 
-int GetWinner(int **board)
+char GetWinner(int **board)
 {
     for (int i = 0; i<15; i++)
     {
@@ -36,13 +86,19 @@ int GetWinner(int **board)
             
         }
     }
+
+    return 'D'
 }
 
 //return 15x15 board, if value is true, valid move
 bool[][] GetAllMoves(int **board)
 {
-    bool **ret[1][1] = {{false}};
-    return **ret;
+    vector<vector<int>> moves = {
+        {false, false, false},
+        {false, false, false},
+        {false, false, false}
+    }
+    return moves;
 }
 
 int EvalBoard(int **board, char maximaler, char minimaler)
