@@ -36,6 +36,13 @@ int MinMax::FindBestMove(vector<vector<char>>board, char turn, int depth,char ma
         int board_score = EvalBoard(board,  maximaler,  minimaler); 
         return board_score;
     }
+    char winner = GetWinner(board);
+    if (winner!='0')
+    {
+        if (winner = maximaler)
+            return 9999999;
+        else return -99999999;
+    }
 
     vector<vector<char>>my_board = board;    //change it to copying later
     int bestscore = -1000;
@@ -83,32 +90,78 @@ int MinMax::FindBestMove(vector<vector<char>>board, char turn, int depth,char ma
                 }
             }
         }
-
     }
-
     return bestscore;
 }
 
 
-int GetBestMove()   //function that i will call from python
-//it should work like FirstLevel in min max and it will return best move
-//as int. remember to create a MinMax Object here
+int GetBestMove(string str_board, char turn, int depth,char maximaler,char minimaler)   //function that i will call from python
 {
-    MinMax* AI = new MinMax('X');
-    return 0;
+    MinMax* AI = new MinMax(maximaler);
+    vector<vector<char>> board;
+    for (int i =0; i<str_board.length(); i++)
+    {
+        if (i%15==0) 
+        {
+            vector<char> empty_vec;
+            board.push_back(empty_vec);
+        }
+        if (str_board[i] == '0')
+        {
+            board[(int)i/15].push_back('0');
+        }
+    }
+
+    vector<vector<bool>> possible_moves = GetAllMoves(board);
+    int bestScore = -99999;
+    int temp;
+    int BestInd = 0;
+
+    for (int i =0; i<15; i++)
+    {
+        for(int j = 0; j<15; j++)
+        {
+            if (possible_moves[i][j])
+            {
+                temp = AI->FindBestMove(board, turn, depth-1, maximaler, minimaler);
+                if (temp > bestScore)
+                {
+                    bestScore = temp;
+                    BestInd= j*15 + i;
+                }
+            }
+        }
+    }
+    return BestInd;
 }
 
 char GetWinner(vector<vector<char>>board)
 {
-    for (int i = 0; i<15; i++)
+    for (int i = 4; i<=14; i++)
     {
-        for (int j = 0; j<15; j++)
+        for (int j = 4; j<=14; j++)
         {
-            
+            // Checking row
+            if(board[i][j]==board[i-1][j] && board[i-1][j]==board[i-2][j]
+                &&  board[i-2][j] == board[i-3][j] && board[i-3][j]==board[i-4][j]
+                && ((i+1 <=14 && board[i][j]!=board[i+1][j] )|| (i-5>=0 && board[i-5][j]!=board[i-4][j])))
+                {
+                    return board[i][j];
+                }
+            //checking column
+            if(board[i][j]==board[i][j-1] && board[i][j-1]==board[i][j-2]
+                &&  board[i][j-2] == board[i][j-3] && board[i][j-3]==board[i][j-4]
+                && ((j+1 <=14 && board[i][j]!=board[i][j+1] )|| (j-5>=0 && board[i][j-5]!=board[i][j-4])))
+                {
+                    return board[i][j];
+                }
+            //checking diagnals from bottom left to upper right
+            //checking diagnals from bottom right to upper left
+
         }
     }
 
-    return 'D';
+    return '0';
 }
 
 //return 15x15 board, if value is true, valid move
@@ -138,16 +191,44 @@ int EvalBoard(vector<vector<char>> board , char maximaler, char minimaler)
     else if (winner == minimaler)   return -1000;
     else
     {
-        int score = GetAmountOf_3_OR_2_InRow(board, maximaler, minimaler); 
-        return score;
-        
+        int score = GetAmountOf_4_OR_3_InRow(board, maximaler, minimaler); 
+        return score; 
     }
     
 }
 
-int GetAmountOf_3_OR_2_InRow(vector<vector<char>>board, char maximaler, char minimaler) //AI +, player -
+int GetAmountOf_4_OR_3_InRow(vector<vector<char>>board, char maximaler, char minimaler) //AI +, player -
 {
-    return 1;
+    int score = 0;
+     for (int i = 3; i<=14; i++)
+    {
+        for (int j = 3; j<=14; j++)
+        {
+            if (board[i][j] != '0')
+            {
+            // Checking row
+            if(board[i][j]==board[i-1][j] && board[i-1][j]==board[i-2][j]
+                &&  board[i-2][j] == board[i-3][j] && (i-4>=0 && board[i-4][j]=='0')
+                || (i+1<14 && board[14][j]=='0'))
+                {
+                    if( board[i][j] == maximaler )
+                    {
+                        score+=2;
+                    }
+                    else
+                    {
+                        score -=2;
+                    }
+                    
+                }
+            //checking column
+            //checking diagnals from bottom left to upper right
+            //checking diagnals from bottom right to upper left     
+            }
+            
+
+        }
+    }
 }
 
 
