@@ -195,10 +195,10 @@ int EvalBoard(vector<vector<char>> board , char maximaler, char minimaler, int x
 int GetAmountOf_4_OR_3_InRow(vector<vector<char>>board, char maximaler, char minimaler) //AI +, player -
 {
     int score = 0;
-    int temp;
-    for (int i = 0; i<=14; i+=2)
+    int amount_of_maximaler_temp;
+    for (int i = 0; i<=14; i+=1)
     {
-        for (int j = 0; j<=14; j+=2)
+        for (int j = 0; j<=14; j+=1)
         {
             amount_of_maximaler_temp = 0;
             if (board[i][j] == maximaler)
@@ -206,30 +206,36 @@ int GetAmountOf_4_OR_3_InRow(vector<vector<char>>board, char maximaler, char min
                 // Checking row
                 if (i>=4)
                 {
-                    if(board[i][j]==board[i-1][j] && board[i-1][j]) != minimaler) 
+                    if(board[i][j]==board[i-1][j]) 
                     {
                         amount_of_maximaler_temp++;
                     }
-                    if(board[i][j]==board[i-2][j] &&board[i-2][j]) != minimaler) 
+                    if(board[i][j]==board[i-2][j]) 
                     {
                         amount_of_maximaler_temp++;
                     }
-                    if(board[i][j]==board[i-3][j] && board[i-3][j]) != minimaler) 
+                    if(board[i][j]==board[i-3][j] ) 
                     {
                         amount_of_maximaler_temp++;
                     }
-                    if(board[i][j]==board[i-4][j] && board[i-4][j]) != minimaler) 
+                    if(board[i][j]==board[i-4][j]) 
                     {
                         amount_of_maximaler_temp++;
-                    }
+                    };
 
-                    if (amount_of_maximaler_temp==3)
-                    {
-                        score+=2
-                    }else if (amount_of_maximaler_temp==2)
-                    {
-                        score+=1
-                    }
+                    if (!(board[i-4][j] == minimaler ||board[i-3][j] == minimaler 
+                        ||board[i-2][j] == minimaler ||board[i-1][j] == minimaler))
+                        {
+                            if (amount_of_maximaler_temp>=3)
+                            {
+                                score+=2;
+                            }
+                            else if (amount_of_maximaler_temp==2)
+                            {
+                                score+=1;
+                            }
+                        }
+
 
 
                 }
@@ -237,86 +243,101 @@ int GetAmountOf_4_OR_3_InRow(vector<vector<char>>board, char maximaler, char min
                 if (j>=4)
                 {
                     //checking column
-                    if(board[i][j]==board[i][j-1] && board[i][j-1]!=minimaler)
+                    if(board[i][j]==board[i][j-1] )
                     {
                         amount_of_maximaler_temp++;
                     }
-                    if(board[i][j]==board[i][j-2] &&board[i][j-2]!=minimaler)
+                    if(board[i][j]==board[i][j-2] )
                     {
                         amount_of_maximaler_temp++;
                     }
-                    if(board[i][j]==board[i][j-3] && board[i][j-3]!=minimaler)
+                    if(board[i][j]==board[i][j-3] )
                     {
                         amount_of_maximaler_temp++;
                     }
-                    if(board[i][j]==board[i][j-4] &&board[i][j-4]!=minimaler)
+                    if(board[i][j]==board[i][j-4] )
                     {
                         amount_of_maximaler_temp++;
                     }
 
-                    if (amount_of_maximaler_temp==3)
-                    {
-                        score+=2
-                    }else if (amount_of_maximaler_temp==2)
-                    {
-                        score+=1
-                    }
+                    if (!(board[i][j-4] == minimaler ||board[i][j-3] == minimaler 
+                        ||board[i][j-2] == minimaler ||board[i][j-1] == minimaler))
+                        {
+                            if (amount_of_maximaler_temp>=3)
+                            {
+                                score+=2;
+                            }else if (amount_of_maximaler_temp==2)
+                            {
+                                score+=1;
+                            }
+                        }
+
 
                 }
                 amount_of_maximaler_temp=0;
                 //checking diagnals from bottom left to upper right
                 if (j>=4 && i>=4)
                 {
-                    if(board[i][j]==board[i-1][j-1] && board[i-1][j-1]!=minimaler)
+                    if(board[i][j]==board[i-1][j-1] )
                         {
                             amount_of_maximaler_temp++;
                         }
-                        if(board[i][j]==board[i-2][j-2] && board[i-2][j-2] !=minimaler)
+                        if(board[i][j]==board[i-2][j-2])
                         {
                             amount_of_maximaler_temp++;
                         }
-                        if(board[i][j]==board[i-3][j-3] &&board[i-3][j-3]!=minimaler)
+                        if(board[i][j]==board[i-3][j-3] )
                         {
                             amount_of_maximaler_temp++;
                         }
-                        if(board[i][j]==board[i-4][j-4] && board[i-4][j-4]!=minimaler)
+                        if(board[i][j]==board[i-4][j-4] )
                         {
                             amount_of_maximaler_temp++;
-                        }
-                        if (amount_of_maximaler_temp==3)
+                        };
+
+                        if (!(board[i-4][j-4] == minimaler ||board[i-3][j-3] == minimaler 
+                        ||board[i-2][j-2] == minimaler ||board[i-1][j-1] == minimaler))
                         {
-                            score+=2
-                        }else if (amount_of_maximaler_temp==2)
-                        {
-                            score+=1
+                            if (amount_of_maximaler_temp>=3)
+                            {
+                                score+=2;
+                            }else if (amount_of_maximaler_temp==2)
+                            {
+                                score+=1;
+                            }
                         }
 
                 }
-                //checking diagnals from bottom right to upper left     
-                if (j>=4 && i>=4)
+                //checking diagnals from bottom left to upper right  
+                if (j<=10 && i>=4)
                 {
-                    if(board[i][j]==board[i-1][j+1] && board[i-1][j+1]!=minimaler)
+                    if(board[i][j]==board[i-1][j+1] )
                         {
                             amount_of_maximaler_temp++;
                         }
-                        if(board[i][j]==board[i-2][j+2] && board[i-2][j+2] !=minimaler)
+                        if(board[i][j]==board[i-2][j+2] )
                         {
                             amount_of_maximaler_temp++;
                         }
-                        if(board[i][j]==board[i-3][j+3] &&board[i-3][j+3]!=minimaler)
+                        if(board[i][j]==board[i-3][j+3])
                         {
                             amount_of_maximaler_temp++;
                         }
-                        if(board[i][j]==board[i-4][j+4] && board[i-4][j+4]!=minimaler)
+                        if(board[i][j]==board[i-4][j+4] )
                         {
                             amount_of_maximaler_temp++;
-                        }
-                        if (amount_of_maximaler_temp==3)
+                        };
+
+                        if (!(board[i-4][j+4] == minimaler ||board[i-3][j+3] == minimaler 
+                        ||board[i-2][j+2] == minimaler ||board[i-1][j+1] == minimaler))
                         {
-                            score+=2
-                        }else if (amount_of_maximaler_temp==2)
-                        {
-                            score+=1
+                            if (amount_of_maximaler_temp>=3)
+                            {
+                                score+=2;
+                            }else if (amount_of_maximaler_temp==2)
+                            {
+                                score+=1;
+                            }
                         }
 
                 }
@@ -325,118 +346,136 @@ int GetAmountOf_4_OR_3_InRow(vector<vector<char>>board, char maximaler, char min
                  // Checking row
                 if (i>=4)
                 {
-                    if(board[i][j]==board[i-1][j] && board[i-1][j]) != maximaler) 
+                    if(board[i][j]==board[i-1][j] )
                     {
                         amount_of_maximaler_temp++;
                     }
-                    if(board[i][j]==board[i-2][j] &&board[i-2][j]) != maximaler) 
+                    if(board[i][j]==board[i-2][j] )
                     {
                         amount_of_maximaler_temp++;
                     }
-                    if(board[i][j]==board[i-3][j] && board[i-3][j]) != maximaler) 
+                    if(board[i][j]==board[i-3][j] )
                     {
                         amount_of_maximaler_temp++;
                     }
-                    if(board[i][j]==board[i-4][j] && board[i-4][j]) != maximaler) 
+                    if(board[i][j]==board[i-4][j] )
                     {
                         amount_of_maximaler_temp++;
-                    }
+                    };
 
-                    if (amount_of_maximaler_temp==3)
-                    {
-                        score+=2
-                    }else if (amount_of_maximaler_temp==2)
-                    {
-                        score+=1
-                    }
-
+                    if (!(board[i-4][j] == maximaler ||board[i-3][j] == maximaler 
+                        ||board[i-2][j] == maximaler ||board[i-1][j] == maximaler))
+                        {
+                            if (amount_of_maximaler_temp>=3)
+                            {
+                                score-=2;
+                            }else if (amount_of_maximaler_temp==2)
+                            {
+                                score-=1;
+                            }
+                        }
 
                 }
                 amount_of_maximaler_temp = 0;
                 if (j>=4)
                 {
                     //checking column
-                    if(board[i][j]==board[i][j-1] && board[i][j-1]!=maximaler)
+                    if(board[i][j]==board[i][j-1] )
                     {
                         amount_of_maximaler_temp++;
                     }
-                    if(board[i][j]==board[i][j-2] &&board[i][j-2]!=maximaler)
+                    if(board[i][j]==board[i][j-2] )
                     {
                         amount_of_maximaler_temp++;
                     }
-                    if(board[i][j]==board[i][j-3] && board[i][j-3]!=maximaler)
+                    if(board[i][j]==board[i][j-3] )
                     {
                         amount_of_maximaler_temp++;
                     }
-                    if(board[i][j]==board[i][j-4] &&board[i][j-4]!=maximaler)
+                    if(board[i][j]==board[i][j-4])
                     {
                         amount_of_maximaler_temp++;
-                    }
+                    };
 
-                    if (amount_of_maximaler_temp==3)
-                    {
-                        score+=2
-                    }else if (amount_of_maximaler_temp==2)
-                    {
-                        score+=1
-                    }
+                    if (!(board[i][j-4] == maximaler ||board[i][j-3] == maximaler 
+                        ||board[i][j-2] == maximaler ||board[i][j-1] == maximaler))
+                        {
+                            if (amount_of_maximaler_temp>=3)
+                            {
+                                score-=2;
+                            }else if (amount_of_maximaler_temp==2)
+                            {
+                                score-=1;
+                            }
+                        }
+
 
                 }
                 amount_of_maximaler_temp=0;
                 //checking diagnals from bottom left to upper right
                 if (j>=4 && i>=4)
                 {
-                    if(board[i][j]==board[i-1][j-1] && board[i-1][j-1]!=maximaler)
+                    if(board[i][j]==board[i-1][j-1])
                         {
                             amount_of_maximaler_temp++;
                         }
-                        if(board[i][j]==board[i-2][j-2] && board[i-2][j-2] !=maximaler)
+                        if(board[i][j]==board[i-2][j-2] )
                         {
                             amount_of_maximaler_temp++;
                         }
-                        if(board[i][j]==board[i-3][j-3] &&board[i-3][j-3]!=maximaler)
+                        if(board[i][j]==board[i-3][j-3])
                         {
                             amount_of_maximaler_temp++;
                         }
-                        if(board[i][j]==board[i-4][j-4] && board[i-4][j-4]!=maximaler)
+                        if(board[i][j]==board[i-4][j-4])
                         {
                             amount_of_maximaler_temp++;
-                        }
-                        if (amount_of_maximaler_temp==3)
+                        };
+
+                         if (!(board[i-4][j-4] == maximaler ||board[i-3][j-3] == maximaler 
+                        ||board[i-2][j-2] == maximaler ||board[i-1][j-1] == maximaler))
                         {
-                            score+=2
-                        }else if (amount_of_maximaler_temp==2)
-                        {
-                            score+=1
+                            if (amount_of_maximaler_temp>=3)
+                            {
+                                score-=2;
+                            }else if (amount_of_maximaler_temp==2)
+                            {
+                                score-=1;
+                            }
                         }
 
                 }
                 amount_of_maximaler_temp=0;
-                //checking diagnals from bottom right to upper left     
-                if (j>=4 && i>=4)
+                //checking diagnals from bottom left to upper right     
+                if (j<=10 && i>=4)
                 {
-                    if(board[i][j]==board[i-1][j+1] && board[i-1][j+1]!=maximaler)
+                    if(board[i][j]==board[i-1][j+1])
                         {
                             amount_of_maximaler_temp++;
                         }
-                        if(board[i][j]==board[i-2][j+2] && board[i-2][j+2] !=maximaler)
+                        if(board[i][j]==board[i-2][j+2])
                         {
                             amount_of_maximaler_temp++;
                         }
-                        if(board[i][j]==board[i-3][j+3] &&board[i-3][j+3]!=maximaler)
+                        if(board[i][j]==board[i-3][j+3])
                         {
                             amount_of_maximaler_temp++;
                         }
-                        if(board[i][j]==board[i-4][j+4] && board[i-4][j+4]!=maximaler)
+                        if(board[i][j]==board[i-4][j+4])
                         {
                             amount_of_maximaler_temp++;
-                        }
-                        if (amount_of_maximaler_temp==3)
+                        };
+
+                         if (!(board[i-4][j+4] == maximaler ||board[i-3][j+3] == maximaler 
+                        ||board[i-2][j+2] == maximaler ||board[i-1][j+1] == maximaler))
                         {
-                            score+=2
-                        }else if (amount_of_maximaler_temp==2)
-                        {
-                            score+=1
+                            if (amount_of_maximaler_temp>=3)
+                            {
+                                score-=2;
+                            }else if (amount_of_maximaler_temp==2)
+                            {
+                                score-=1;
+                            }
                         }
                 }
             }
@@ -459,25 +498,34 @@ int main()
             board[i].push_back('0');
         }
     }
-
-    board[9][1] = 'X';
-    board[8][2] = 'X';
-    board[7][3] = 'X';
-    board[6][4] = 'X';
-    board[5][5] = 'X';
+    board[10][0] = 'X';
+    board[9][1] = 'O';
+    board[8][2] = 'O';
+    //board[7][3] = 'X';
+    board[6][4] = 'O';
+    board[5][5] = 'O';
     
-    cout<<GetAmountOf_4_OR_3_InRow(board, 'X','0')<<endl;
+    cout<<"SCORE: "<<GetAmountOf_4_OR_3_InRow(board, 'X','O')<<endl;
+    
+    cout<<endl;
 
     for (int i = 0; i<15; i++)
     {
         for (int j = 0; j<15; j++)
         {
-            cout<<board[i][j]<<" ";
+            if (board[i][j] == 'X')
+                cout<<"\033[32m"<<board[i][j]<<" ";
+            else if (board[i][j] == 'O')
+                cout<<"\033[31m" <<board[i][j]<<" ";
+            else
+            {
+                cout<<"\033[0m"<<board[i][j]<<" ";
+            }
+            
         }
         cout<<endl;
     }
     
-    cout<<endl;
 
     /*vector<vector<bool>> moves = GetAllMoves(board);
 
