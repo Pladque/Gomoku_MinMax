@@ -1,11 +1,15 @@
 #include <vector>
 #include <iostream>
+#include <bits/stdc++.h>    //min max int values
+
 using namespace std;
 
-int GetAmountOf_4_OR_3_InRow(vector<vector<char>>board, char maximaler, char minimaler);
+int GetAmountOf_4_OR_3_InRow(vector<vector<char>>board, char maximaler, char minimaler, int x_substractor = 0, int y_substractor = 0);
 int EvalBoard(vector<vector<char>>board, char maximaler, char minimaler, int x_substractor = 0, int y_substractor = 0);
 vector<vector<bool>> GetAllMoves(vector<vector<char>>board, int x_substractor = 0, int y_substractor = 0);
 char GetWinner(vector<vector<char>>board,int x_substractor = 0,int y_substractor = 0);
+
+vector<vector<vector<char>>> ALLBOARDS;
 
 class MinMax
 {
@@ -34,19 +38,31 @@ int MinMax::FindBestMove(vector<vector<char>> board, char turn, int depth,int al
 
     char winner = GetWinner(board,  x_substractor, y_substractor);
     if (winner!='0')
-        return (winner = maximaler) ? 9999999 : -99999999;
+        return (winner = maximaler) ? INT_MAX : INT_MIN;
 
-    vector<vector<bool>> all_moves =  GetAllMoves(board, x_substractor, y_substractor);
     vector<vector<char>>my_board = board;    //change it to copying later(but is coping alreadi i think)
     int bestscore = (turn == maximaler) ? -1000 : 1000;
     my_board[move_x][move_y] = (turn == minimaler) ? maximaler : minimaler;     //not sure if maximaler or minimaler here
     
+    ///IDK IF IT IS GOOD???
+    for (int i = 0; i< 10; i++)     //i les then what??
+    {
+        if (ALLBOARDS[i] == my_board)   //mby I can add additional place(char) to the end of my_board, that save its leve
+        {                               //so I could find it by levels (how many moves has been done)
+            return -7774463;    //code, if FindBestMove return it, function level up shouldnt consider that path
+        }
+    }
+    ALLBOARDS.push_back(my_board);
+    ////////////////////////
+
+    
+    vector<vector<bool>> all_moves =  GetAllMoves(board, x_substractor, y_substractor);
     int eval;
     // Finding for maximaler
     if (turn == maximaler)
     {
-        for (int i=0; i<15 - x_substractor; i++)
-            for (int j=0; j<15 - y_substractor; j++)
+        for (int i=x_substractor; i<=14 - x_substractor; i++)
+            for (int j=y_substractor; j<=14 - y_substractor; j++)
                 if(all_moves[i][j])
                 {
                     eval = FindBestMove(my_board,  minimaler,  depth-1,alpha, beta, maximaler, minimaler,i,j, x_substractor, y_substractor);
@@ -61,8 +77,8 @@ int MinMax::FindBestMove(vector<vector<char>> board, char turn, int depth,int al
     // Finding for minimaler
     else
     {
-        for (int i=0; i<15 - x_substractor; i++)
-            for (int j=0; j<15 - y_substractor; j++)
+        for (int i=x_substractor; i<=14 - x_substractor; i++)
+            for (int j=y_substractor; j<=14 - y_substractor; j++)
                 if(all_moves[i][j])
                 {
                     eval = FindBestMove(my_board,  minimaler,  depth-1, alpha, beta, maximaler, minimaler,i,j, x_substractor, y_substractor);
@@ -76,11 +92,12 @@ int MinMax::FindBestMove(vector<vector<char>> board, char turn, int depth,int al
         return bestscore;
 }
 
-// int x_substractor ,int  y_substractor  I will calculate in python and send it here and it will replace old  x_substractor y_substractor if there are < then new ones
+// int x_substractor ,int  y_substractor  I will calculate in python and python will have saved smalles value of it and that smalles values will be sent here
 int GetBestMove(string str_board, char turn, int depth,char maximaler,char minimaler,  int x_substractor ,int  y_substractor  )    //function that i will call from python
 {
     MinMax* AI = new MinMax(maximaler);
     vector<vector<char>> board;
+
     //converting str 15x15 board to vectors of vector  of chars
     for (int i =0; i<str_board.length(); i++)
     {
@@ -89,14 +106,14 @@ int GetBestMove(string str_board, char turn, int depth,char maximaler,char minim
             vector<char> empty_vec;
             board.push_back(empty_vec);
         }
-        if (str_board[i] == '0')
+        if (str_board[i] == '0'     ||  str_board[i] == 'O' ||  str_board[i] == 'X')
         {
-            board[(int)i/15].push_back('0');
+            board[(int)i/15].push_back(str_board[i]);
         }
     }
 
     vector<vector<bool>> possible_moves = GetAllMoves(board, x_substractor, y_substractor);
-    int bestScore = -99999;
+    int bestScore = INT_MIN;
     int temp;
     int BestInd = 0;
 
@@ -106,7 +123,7 @@ int GetBestMove(string str_board, char turn, int depth,char maximaler,char minim
         {
             if (possible_moves[i][j])
             {
-                temp = AI->FindBestMove(board, AI->Opponent_character, depth-1,-99999999999, 9999999999 ,maximaler, minimaler,  i,  j,  x_substractor ,  y_substractor ) ;
+                temp = AI->FindBestMove(board, AI->Opponent_character, depth-1,INT_MIN, INT_MAX ,maximaler, minimaler,  i,  j,  x_substractor ,  y_substractor ) ;
                 if (temp > bestScore)
                 {
                     bestScore = temp;
@@ -180,19 +197,19 @@ vector<vector<bool>> GetAllMoves(vector<vector<char>> board, int x_substractor, 
 //I need winner seperaty!!!
 int EvalBoard(vector<vector<char>> board , char maximaler, char minimaler, int x_substractor, int y_substractor)
 {
-    //but mby I can it do better
-    char winner = GetWinner(board, x_substractor, y_substractor);
-    if (winner == maximaler)        return 1000;
-    else if (winner == minimaler)   return -1000;
-    else
+    switch(GetWinner(board, x_substractor, y_substractor))
     {
-        //int score = 
-        return GetAmountOf_4_OR_3_InRow(board, maximaler, minimaler); 
+        case 'X': 
+            return INT_MAX;
+        case 'O': 
+            return INT_MIN;
+        default:
+            return GetAmountOf_4_OR_3_InRow(board, maximaler, minimaler, x_substractor,  y_substractor); 
     }
     
 }
 
-int GetAmountOf_4_OR_3_InRow(vector<vector<char>>board, char maximaler, char minimaler) //AI +, player -
+int GetAmountOf_4_OR_3_InRow(vector<vector<char>>board, char maximaler, char minimaler, int x_substractor, int y_substractor) //AI +, player -
 {
     int score = 0;
     int amount_of_maximaler_temp;
@@ -498,14 +515,15 @@ int main()
             board[i].push_back('0');
         }
     }
-    board[10][0] = 'X';
-    board[9][1] = 'O';
-    board[8][2] = 'O';
-    //board[7][3] = 'X';
-    board[6][4] = 'O';
-    board[5][5] = 'O';
+    //board[10][0] = 'X'; //board[10][0] = 'X';
+    board[9][0] = 'O';  board[10][4] = 'X';
+    board[8][0] = 'O';  board[10][5] = 'X';
+    //board[7][0] = 'O';  board[10][6] = 'X';
+    board[6][0] = 'O';  board[10][7] = 'X';
+    board[5][0] = 'O';  board[10][8] = 'X';
     
     cout<<"SCORE: "<<GetAmountOf_4_OR_3_InRow(board, 'X','O')<<endl;
+    cout<<"WINNER: "<<GetWinner(board, 0,0)<<endl;
     
     cout<<endl;
 
