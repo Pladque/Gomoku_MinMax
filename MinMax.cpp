@@ -2,17 +2,17 @@
 #include <iostream>
 using namespace std;
 
-int GetAmountOf_3_OR_2_InRow(vector<vector<char>>board, char maximaler, char minimaler);
+int GetAmountOf_4_OR_3_InRow(vector<vector<char>>board, char maximaler, char minimaler);
 int EvalBoard(vector<vector<char>>board, char maximaler, char minimaler, int x_substractor = 0, int y_substractor = 0);
-vector<vector<bool>> GetAllMoves(vector<vector<char>>board);
-
+vector<vector<bool>> GetAllMoves(vector<vector<char>>board, int x_substractor = 0, int y_substractor = 0);
+char GetWinner(vector<vector<char>>board,int x_substractor = 0,int y_substractor = 0);
 
 class MinMax
 {
 private:
+public:
     char AI_character;
     char Opponent_character;
-public:
     MinMax(char AI_Char);
     int FindBestMove(vector<vector<char>>board, char turn, int depth,int alpha, int beta,char maximaler,char minimaler, int move_x, int move_y,  int x_substractor = 0, int y_substractor = 0);
 };
@@ -27,7 +27,7 @@ MinMax::MinMax(char AI_Char)
 
 }
 
-int MinMax::FindBestMove(vector<vector<char>> board, char turn, int depth,int alpha, int beta, char maximaler,char minimaler, int move_x, int move_y,  int x_substractor = 0, int y_substractor = 0) 
+int MinMax::FindBestMove(vector<vector<char>> board, char turn, int depth,int alpha, int beta, char maximaler,char minimaler, int move_x, int move_y,  int x_substractor, int y_substractor) 
 {
     if (depth == 0)
         return EvalBoard(board,  maximaler,  minimaler, x_substractor, y_substractor); 
@@ -36,7 +36,7 @@ int MinMax::FindBestMove(vector<vector<char>> board, char turn, int depth,int al
     if (winner!='0')
         return (winner = maximaler) ? 9999999 : -99999999;
 
-    vector<vector<bool>> all_moves =  GetAllMoves(board);
+    vector<vector<bool>> all_moves =  GetAllMoves(board, x_substractor, y_substractor);
     vector<vector<char>>my_board = board;    //change it to copying later(but is coping alreadi i think)
     int bestscore = (turn == maximaler) ? -1000 : 1000;
     my_board[move_x][move_y] = (turn == minimaler) ? maximaler : minimaler;     //not sure if maximaler or minimaler here
@@ -44,30 +44,34 @@ int MinMax::FindBestMove(vector<vector<char>> board, char turn, int depth,int al
     int eval;
     // Finding for maximaler
     if (turn == maximaler)
+    {
         for (int i=0; i<15 - x_substractor; i++)
             for (int j=0; j<15 - y_substractor; j++)
                 if(all_moves[i][j])
                 {
                     eval = FindBestMove(my_board,  minimaler,  depth-1,alpha, beta, maximaler, minimaler,i,j, x_substractor, y_substractor);
                     bestscore = max(eval, bestscore);
-                    alpha = max(eval, alpha)
+                    alpha = max(eval, alpha);
                     if (beta<= alpha)
                         return bestscore;
                 }
 
         return bestscore;    
+    }
     // Finding for minimaler
     else
+    {
         for (int i=0; i<15 - x_substractor; i++)
             for (int j=0; j<15 - y_substractor; j++)
                 if(all_moves[i][j])
                 {
                     eval = FindBestMove(my_board,  minimaler,  depth-1, alpha, beta, maximaler, minimaler,i,j, x_substractor, y_substractor);
                     bestscore = min(eval, bestscore);
-                    beta = min(eval, beta)
+                    beta = min(eval, beta);
                     if (beta<= alpha)
                         return bestscore;
                 }
+    }
 
         return bestscore;
 }
@@ -91,7 +95,7 @@ int GetBestMove(string str_board, char turn, int depth,char maximaler,char minim
         }
     }
 
-    vector<vector<bool>> possible_moves = GetAllMoves(board);
+    vector<vector<bool>> possible_moves = GetAllMoves(board, x_substractor, y_substractor);
     int bestScore = -99999;
     int temp;
     int BestInd = 0;
@@ -102,7 +106,7 @@ int GetBestMove(string str_board, char turn, int depth,char maximaler,char minim
         {
             if (possible_moves[i][j])
             {
-                temp = AI->FindBestMove(board, AI->Opponent_character, depth-1,-99999999999, 9999999999 maximaler, minimaler,  i,  j,  x_substractor ,  y_substractor ) 
+                temp = AI->FindBestMove(board, AI->Opponent_character, depth-1,-99999999999, 9999999999 ,maximaler, minimaler,  i,  j,  x_substractor ,  y_substractor ) ;
                 if (temp > bestScore)
                 {
                     bestScore = temp;
@@ -114,34 +118,34 @@ int GetBestMove(string str_board, char turn, int depth,char maximaler,char minim
     return BestInd;
 }
 
-char GetWinner(vector<vector<char>>board, int x_substractor = 0, int y_substractor = 0)
+char GetWinner(vector<vector<char>>board, int x_substractor, int y_substractor)
 {
-    for (int i = 4; i<=14; i++)
+    for (int i = y_substractor; i<=14 - y_substractor; i++)
     {
-        for (int j = 4; j<=14; j++)
+        for (int j = x_substractor; j<=14 - x_substractor; j++)
         {
             if(board[i][j]!='0')
             {
-                // Checking row
-                if(board[i][j]==board[i-1][j] && board[i-1][j]==board[i-2][j]
+                // Checking column
+                if(i>=4 && board[i][j]==board[i-1][j] && board[i-1][j]==board[i-2][j]
                     &&  board[i-2][j] == board[i-3][j] && board[i-3][j]==board[i-4][j])
                     {
                         return board[i][j];
                     }
-                //checking column
-                if(board[i][j]==board[i][j-1] && board[i][j-1]==board[i][j-2]
+                //checking row
+                if(j>=4 && board[i][j]==board[i][j-1] && board[i][j-1]==board[i][j-2]
                     &&  board[i][j-2] == board[i][j-3] && board[i][j-3]==board[i][j-4])
                     {
                         return board[i][j];
                     }
-                //checking diagnals from upper right to bottom left
-                if(board[i][j]==board[i-1][j-1] && board[i-1][j-1]==board[i-2][j-2]
+                //checking diagnals from upper left to bottom right
+                if(i>=4 && j>=4 && board[i][j]==board[i-1][j-1] && board[i-1][j-1]==board[i-2][j-2]
                     &&  board[i-2][j-2] == board[i-3][j-3] && board[i-3][j-3]==board[i-4][j-4])
                     {
                         return board[i][j];
                     }
-                //checking diagnals from bottom right to upper left
-                if(x<=10 && board[i][j]==board[i+1][j-1] && board[i+1][j-1]==board[i+2][j-2]
+                //checking diagnals from upper right to bottom left
+                if(i<=10 &&j>=4 &&  board[i][j]==board[i+1][j-1] && board[i+1][j-1]==board[i+2][j-2]
                     &&  board[i+2][j-2] == board[i+3][j-3] && board[i+3][j-3]==board[i+4][j-4])
                     {
                         return board[i][j];
@@ -154,7 +158,7 @@ char GetWinner(vector<vector<char>>board, int x_substractor = 0, int y_substract
 }
 
 //return 15x15 board, if value is true, valid move
-vector<vector<bool>> GetAllMoves(vector<vector<char>> board, int x_substractor = 0, int y_substractor = 0) //#DONE WORK
+vector<vector<bool>> GetAllMoves(vector<vector<char>> board, int x_substractor, int y_substractor) //#DONE WORK
 {
     vector<vector<bool>> moves;
     for (int i = 0; i<15 - x_substractor; i++)
@@ -174,7 +178,7 @@ vector<vector<bool>> GetAllMoves(vector<vector<char>> board, int x_substractor =
 }
 
 //I need winner seperaty!!!
-int EvalBoard(vector<vector<char>> board , char maximaler, char minimaler, int x_substractor = 0, int y_substractor = 0)
+int EvalBoard(vector<vector<char>> board , char maximaler, char minimaler, int x_substractor, int y_substractor)
 {
     //but mby I can it do better
     char winner = GetWinner(board, x_substractor, y_substractor);
@@ -234,6 +238,8 @@ int GetAmountOf_4_OR_3_InRow(vector<vector<char>>board, char maximaler, char min
 
         }
     }
+
+    return score;
 }
 
 
@@ -251,12 +257,12 @@ int main()
         }
     }
 
-    board[1][1] = 'X';
-    board[2][2] = 'X';
-    board[3][3] = 'X';
-    board[4][4] = 'X';
+    board[9][1] = 'X';
+    board[8][2] = 'X';
+    board[7][3] = 'X';
+    board[6][4] = 'X';
     board[5][5] = 'X';
-    //cout<<GetWinner(board, 0,0)<<endl;
+    cout<<GetWinner(board, 0,0)<<endl;
 
     for (int i = 0; i<15; i++)
     {
@@ -269,7 +275,7 @@ int main()
     
     cout<<endl;
 
-    vector<vector<bool>> moves = GetAllMoves(board);
+    /*vector<vector<bool>> moves = GetAllMoves(board);
 
     for (int i = 0; i<15; i++)
     {
@@ -280,6 +286,6 @@ int main()
         cout<<endl;
     }
 
-
+*/
 
 }
