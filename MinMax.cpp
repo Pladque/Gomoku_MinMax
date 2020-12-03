@@ -40,9 +40,6 @@ int MinMax::FindBestMove(vector<vector<char>> board, char turn, int depth,int al
     if (winner!='0')
         return (winner = maximaler) ? INT_MAX : INT_MIN;
 
-<<<<<<< Updated upstream
-    vector<vector<char>>my_board = board;    //change it to copying later(but is coping alreadi i think)
-=======
     vector<vector<bool>> all_moves =  GetAllMoves(board, x_substractor, y_substractor);
     vector<vector<char>>my_board = board;    //change it to copying later(but is coping already i think)
     int bestscore = (turn == maximaler) ? -1000 : 1000;
@@ -437,33 +434,33 @@ int GetAmountOf_4_OR_3_InRow(vector<vector<char>>board, char maximaler, char min
                 if (j>=4 && i>=4)
                 {
                     if(board[i][j]==board[i-1][j-1])
-                        {
-                            amount_of_maximaler_temp++;
-                        }
-                        if(board[i][j]==board[i-2][j-2] )
-                        {
-                            amount_of_maximaler_temp++;
-                        }
-                        if(board[i][j]==board[i-3][j-3])
-                        {
-                            amount_of_maximaler_temp++;
-                        }
-                        if(board[i][j]==board[i-4][j-4])
-                        {
-                            amount_of_maximaler_temp++;
-                        };
+                    {
+                        amount_of_maximaler_temp++;
+                    }
+                    if(board[i][j]==board[i-2][j-2] )
+                    {
+                        amount_of_maximaler_temp++;
+                    }
+                    if(board[i][j]==board[i-3][j-3])
+                    {
+                        amount_of_maximaler_temp++;
+                    }
+                    if(board[i][j]==board[i-4][j-4])
+                    {
+                        amount_of_maximaler_temp++;
+                    };
 
-                         if (!(board[i-4][j-4] == maximaler ||board[i-3][j-3] == maximaler 
-                        ||board[i-2][j-2] == maximaler ||board[i-1][j-1] == maximaler))
+                        if (!(board[i-4][j-4] == maximaler ||board[i-3][j-3] == maximaler 
+                    ||board[i-2][j-2] == maximaler ||board[i-1][j-1] == maximaler))
+                    {
+                        if (amount_of_maximaler_temp>=3)
                         {
-                            if (amount_of_maximaler_temp>=3)
-                            {
-                                score-=2;
-                            }else if (amount_of_maximaler_temp==2)
-                            {
-                                score-=1;
-                            }
+                            score-=2;
+                        }else if (amount_of_maximaler_temp==2)
+                        {
+                            score-=1;
                         }
+                    }
 
                 }
                 amount_of_maximaler_temp=0;
@@ -471,33 +468,33 @@ int GetAmountOf_4_OR_3_InRow(vector<vector<char>>board, char maximaler, char min
                 if (j<=10 && i>=4)
                 {
                     if(board[i][j]==board[i-1][j+1])
-                        {
-                            amount_of_maximaler_temp++;
-                        }
-                        if(board[i][j]==board[i-2][j+2])
-                        {
-                            amount_of_maximaler_temp++;
-                        }
-                        if(board[i][j]==board[i-3][j+3])
-                        {
-                            amount_of_maximaler_temp++;
-                        }
-                        if(board[i][j]==board[i-4][j+4])
-                        {
-                            amount_of_maximaler_temp++;
-                        };
+                    {
+                        amount_of_maximaler_temp++;
+                    }
+                    if(board[i][j]==board[i-2][j+2])
+                    {
+                        amount_of_maximaler_temp++;
+                    }
+                    if(board[i][j]==board[i-3][j+3])
+                    {
+                        amount_of_maximaler_temp++;
+                    }
+                    if(board[i][j]==board[i-4][j+4])
+                    {
+                        amount_of_maximaler_temp++;
+                    };
 
-                         if (!(board[i-4][j+4] == maximaler ||board[i-3][j+3] == maximaler 
-                        ||board[i-2][j+2] == maximaler ||board[i-1][j+1] == maximaler))
+                        if (!(board[i-4][j+4] == maximaler ||board[i-3][j+3] == maximaler 
+                    ||board[i-2][j+2] == maximaler ||board[i-1][j+1] == maximaler))
+                    {
+                        if (amount_of_maximaler_temp>=3)
                         {
-                            if (amount_of_maximaler_temp>=3)
-                            {
-                                score-=2;
-                            }else if (amount_of_maximaler_temp==2)
-                            {
-                                score-=1;
-                            }
+                            score-=2;
+                        }else if (amount_of_maximaler_temp==2)
+                        {
+                            score-=1;
                         }
+                    }
                 }
             }
         }
