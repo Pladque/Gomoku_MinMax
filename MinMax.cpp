@@ -40,17 +40,18 @@ int MinMax::FindBestMove(vector<vector<char>> board, char turn, int depth,int al
     if (winner!='0')
         return (winner = maximaler) ? INT_MAX : INT_MIN;
 
-    vector<vector<bool>> all_moves =  GetAllMoves(board, x_substractor, y_substractor);
+    //vector<vector<bool>> all_moves =  GetAllMoves(board, x_substractor, y_substractor);
     vector<vector<char>>my_board = board;    //change it to copying later(but is coping already i think)
     int bestscore = (turn == maximaler) ? INT_MIN : INT_MAX;
     my_board[move_x][move_y] = (turn == minimaler) ? maximaler : minimaler;     //not sure if maximaler or minimaler here
     
-    ///IDK IF IT IS GOOD???
+    ///If  such a board already was considered, pass it
+    // NO! ALLBOARD should be hash table, with board as key and its eval as a value!
     for (int i = 0; i< ALLBOARDS.size(); i++)     
     {
         if (ALLBOARDS[i] == my_board)   //mby I can add additional place(char) to the end of my_board, that save its leve
-        {                               //so I could find it by levels (how many moves has been done)
-            return -7774463;    //code, if FindBestMove return it, function level up shouldnt consider that path
+        { 
+            return EvalBoard(board,  maximaler,  minimaler, x_substractor, y_substractor); 
         }
     }
     ALLBOARDS.push_back(my_board);
@@ -507,20 +508,28 @@ int main()
 {
     vector<vector<char>> board;
 
-    vector<char> test1, test2;
-    test.push_back('X')
-    test2.push_back('O')
-    ALLBOARDS.push_back(test)
+    vector<vector<char>> test1;
+    vector<vector<char>> test2;
+    vector<char> temp1;
+    vector<char> temp2;
+    temp1.push_back('X');
+    temp1.push_back('X');
+    temp2.push_back('X');
+
+    test1.push_back(temp1);
+    test1.push_back(temp2);
+    test2.push_back(temp2);
+    ALLBOARDS.push_back(test2);
 
     for (int i = 0; i< ALLBOARDS.size(); i++)     
     {
-        if (ALLBOARDS[i] == test)   //mby I can add additional place(char) to the end of my_board, that save its leve
+        if (ALLBOARDS[i] == test1)   //mby I can add additional place(char) to the end of my_board, that save its leve
         {     
             cout<<"found"<<endl;                          //so I could find it by levels (how many moves has been done)
             return -7774463;    //code, if FindBestMove return it, function level up shouldnt consider that path
         }
     }
-
+/*
     for (int i = 0; i<15; i++)
     {
         vector<char> empty_vec;
