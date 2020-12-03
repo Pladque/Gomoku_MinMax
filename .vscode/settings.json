@@ -1,5 +1,9 @@
 {
     "files.associations": {
-        "atomic": "cpp"
+        "atomic": "cpp",
+        "vector": "cpp",
+        "map": "cpp",
+        "xlocale": "cpp",
+        "xstring": "cpp"
     }
 }

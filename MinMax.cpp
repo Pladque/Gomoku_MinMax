@@ -1,6 +1,7 @@
 #include <vector>
 #include <iostream>
 #include <bits/stdc++.h>    //min max int values
+#include <map>              //hashmaps
 
 using namespace std;
 
@@ -9,7 +10,9 @@ int EvalBoard(vector<vector<char>>board, char maximaler, char minimaler, int x_s
 vector<vector<bool>> GetAllMoves(vector<vector<char>>board, int x_substractor = 0, int y_substractor = 0);
 char GetWinner(vector<vector<char>>board,int x_substractor = 0,int y_substractor = 0);
 
-vector<vector<vector<char>>> ALLBOARDS;
+//vector<vector<vector<char>>> ALLBOARDS;
+map<vector<vector<char>>, int> ALLBOARDS;
+
 
 class MinMax
 {
@@ -45,19 +48,12 @@ int MinMax::FindBestMove(vector<vector<char>> board, char turn, int depth,int al
     int bestscore = (turn == maximaler) ? INT_MIN : INT_MAX;
     my_board[move_x][move_y] = (turn == minimaler) ? maximaler : minimaler;     //not sure if maximaler or minimaler here
     
-    ///If  such a board already was considered, pass it
-    // NO! ALLBOARD should be hash table, with board as key and its eval as a value!
-    for (int i = 0; i< ALLBOARDS.size(); i++)     
-    {
-        if (ALLBOARDS[i] == my_board)   //mby I can add additional place(char) to the end of my_board, that save its leve
-        { 
-            return EvalBoard(board,  maximaler,  minimaler, x_substractor, y_substractor); 
-        }
-    }
-    ALLBOARDS.push_back(my_board);
-    ////////////////////////
+    //skipping already considered boards:
+    if (ALLBOARDS.find(myboard) != ALLBOARDS.end())
+        return ALLBOARDS[myboard];
+    //////////////////////////////////
 
-    
+
     vector<vector<bool>> all_moves =  GetAllMoves(board, x_substractor, y_substractor);
     int eval;
     // Finding for maximaler
@@ -74,7 +70,6 @@ int MinMax::FindBestMove(vector<vector<char>> board, char turn, int depth,int al
                         return bestscore;
                 }
 
-        return bestscore;    
     }
     // Finding for minimaler
     else
@@ -91,7 +86,8 @@ int MinMax::FindBestMove(vector<vector<char>> board, char turn, int depth,int al
                 }
     }
 
-        return bestscore;
+    ALLBOARDS[myboard] = bestscore;
+    return bestscore;
 }
 
 // int x_substractor ,int  y_substractor  I will calculate in python and python will have saved smalles value of it and that smalles values will be sent here
@@ -99,7 +95,8 @@ int GetBestMove(string str_board, char turn, int depth,char maximaler,char minim
 {
     MinMax* AI = new MinMax(maximaler);
     vector<vector<char>> board;
-
+    //str_board = "000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+    
     //converting str 15x15 board to vectors of vector  of chars
     for (int i =0; i<str_board.length(); i++)
     {
@@ -112,6 +109,23 @@ int GetBestMove(string str_board, char turn, int depth,char maximaler,char minim
         {
             board[(int)i/15].push_back(str_board[i]);
         }
+    }
+    /// Schowing start board
+    for (int i = 0; i<15; i++)
+    {
+        for (int j = 0; j<15; j++)
+        {
+            if (board[i][j] == 'X')
+                cout<<"\033[32m"<<board[i][j]<<" ";
+            else if (board[i][j] == 'O')
+                cout<<"\033[31m" <<board[i][j]<<" ";
+            else
+            {
+                cout<<"\033[0m"<<board[i][j]<<" ";
+            }
+            
+        }
+        cout<<endl;
     }
 
     vector<vector<bool>> possible_moves = GetAllMoves(board, x_substractor, y_substractor);
@@ -134,6 +148,7 @@ int GetBestMove(string str_board, char turn, int depth,char maximaler,char minim
             }
         }
     }
+
     return BestInd;
 }
 
@@ -506,51 +521,25 @@ int GetAmountOf_4_OR_3_InRow(vector<vector<char>>board, char maximaler, char min
 
 int main()
 {
+    string str_board = "000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000";
+
+    
+
     vector<vector<char>> board;
-
-    vector<vector<char>> test1;
-    vector<vector<char>> test2;
-    vector<char> temp1;
-    vector<char> temp2;
-    temp1.push_back('X');
-    temp1.push_back('X');
-    temp2.push_back('X');
-
-    test1.push_back(temp1);
-    test1.push_back(temp2);
-    test2.push_back(temp2);
-    ALLBOARDS.push_back(test2);
-
-    for (int i = 0; i< ALLBOARDS.size(); i++)     
+    //converting str 15x15 board to vectors of vector  of chars
+    for (int i =0; i<str_board.length(); i++)
     {
-        if (ALLBOARDS[i] == test1)   //mby I can add additional place(char) to the end of my_board, that save its leve
-        {     
-            cout<<"found"<<endl;                          //so I could find it by levels (how many moves has been done)
-            return -7774463;    //code, if FindBestMove return it, function level up shouldnt consider that path
-        }
-    }
-/*
-    for (int i = 0; i<15; i++)
-    {
-        vector<char> empty_vec;
-        board.push_back(empty_vec);
-        for (int j = 0; j<15; j++)
+        if (i%15==0) 
         {
-            board[i].push_back('0');
+            vector<char> empty_vec;
+            board.push_back(empty_vec);
+        }
+        if (str_board[i] == '0'     ||  str_board[i] == 'O' ||  str_board[i] == 'X')
+        {
+            board[(int)i/15].push_back(str_board[i]);
         }
     }
-    //board[10][0] = 'X'; //board[10][0] = 'X';
-    board[9][0] = 'O';  board[10][4] = 'X';
-    board[8][0] = 'O';  board[10][5] = 'X';
-    //board[7][0] = 'O';  board[10][6] = 'X';
-    board[6][0] = 'O';  board[10][7] = 'X';
-    board[5][0] = 'O';  board[10][8] = 'X';
-    
-    cout<<"SCORE: "<<GetAmountOf_4_OR_3_InRow(board, 'X','O')<<endl;
-    cout<<"WINNER: "<<GetWinner(board, 0,0)<<endl;
-    
-    cout<<endl;
-
+    /// Schowing changed board
     for (int i = 0; i<15; i++)
     {
         for (int j = 0; j<15; j++)
@@ -567,19 +556,43 @@ int main()
         }
         cout<<endl;
     }
-    
 
-    /*vector<vector<bool>> moves = GetAllMoves(board);
+    /// FINDING BEST
+    str_board [ GetBestMove(str_board, 'X', 2, 'X', 'O', 0,0) ] = 'X';
 
+    //converting str 15x15 board to vectors of vector  of chars
+    for (int i =0; i<str_board.length(); i++)
+    {
+        if (i%15==0) 
+        {
+            vector<char> empty_vec;
+            board.push_back(empty_vec);
+        }
+        if (str_board[i] == '0'     ||  str_board[i] == 'O' ||  str_board[i] == 'X')
+        {
+            board[(int)i/15].push_back(str_board[i]);
+        }
+    }
+    /// Schowing changed board
     for (int i = 0; i<15; i++)
     {
         for (int j = 0; j<15; j++)
         {
-            cout<<moves[i][j]<<" ";
+            if (board[i][j] == 'X')
+                cout<<"\033[32m"<<board[i][j]<<" ";
+            else if (board[i][j] == 'O')
+                cout<<"\033[31m" <<board[i][j]<<" ";
+            else
+            {
+                cout<<"\033[0m"<<board[i][j]<<" ";
+            }
+            
         }
         cout<<endl;
     }
 
-*/
+
+
+
 
 }
