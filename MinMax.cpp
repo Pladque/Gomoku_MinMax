@@ -49,44 +49,94 @@ int MinMax::FindBestMove(vector<vector<char>> board, char turn, int depth,int al
     my_board[move_x][move_y] = (turn == minimaler) ? maximaler : minimaler;     //not sure if maximaler or minimaler here
     
     //skipping already considered boards:
-    if (ALLBOARDS.find(myboard) != ALLBOARDS.end())
-        return ALLBOARDS[myboard];
+    if (ALLBOARDS.find(my_board) != ALLBOARDS.end())
+        return ALLBOARDS[my_board];
     //////////////////////////////////
 
 
-    vector<vector<bool>> all_moves =  GetAllMoves(board, x_substractor, y_substractor);
+    vector<vector<bool>> all_moves =  GetAllMoves(board);
     int eval;
     // Finding for maximaler
     if (turn == maximaler)
     {
-        for (int i=x_substractor; i<=14 - x_substractor; i++)
-            for (int j=y_substractor; j<=14 - y_substractor; j++)
-                if(all_moves[i][j])
+        for (int i=0; i<=7 - y_substractor; i++)
+            for (int j=0; j<=7 - x_substractor; j++)
+            {
+                if(all_moves[7-j][7-i])
                 {
-                    eval = FindBestMove(my_board,  minimaler,  depth-1,alpha, beta, maximaler, minimaler,i,j, x_substractor, y_substractor);
+                    eval = FindBestMove(my_board,  minimaler,  depth-1,alpha, beta, maximaler, minimaler,7-j,7-i, x_substractor, y_substractor);
                     bestscore = max(eval, bestscore);
                     alpha = max(eval, alpha);
                     if (beta<= alpha)
-                        return bestscore;
+                        break;
+                }if(all_moves[7+j][7+i])
+                {
+                    eval = FindBestMove(my_board,  minimaler,  depth-1,alpha, beta, maximaler, minimaler,7+j,7+i, x_substractor, y_substractor);
+                    bestscore = max(eval, bestscore);
+                    alpha = max(eval, alpha);
+                    if (beta<= alpha)
+                        break;
+                }if(all_moves[7+j][7-i])
+                {
+                    eval = FindBestMove(my_board,  minimaler,  depth-1,alpha, beta, maximaler, minimaler,7+j,7-i, x_substractor, y_substractor);
+                    bestscore = max(eval, bestscore);
+                    alpha = max(eval, alpha);
+                    if (beta<= alpha)
+                        break;
+                }if(all_moves[7-j][7+i])
+                {
+                    eval = FindBestMove(my_board,  minimaler,  depth-1,alpha, beta, maximaler, minimaler,7-j,7+i, x_substractor, y_substractor);
+                    bestscore = max(eval, bestscore);
+                    alpha = max(eval, alpha);
+                    if (beta<= alpha)
+                        break;
                 }
+
+            }
 
     }
     // Finding for minimaler
     else
     {
-        for (int i=x_substractor; i<=14 - x_substractor; i++)
-            for (int j=y_substractor; j<=14 - y_substractor; j++)
-                if(all_moves[i][j])
+        for (int i=0; i<=7 - y_substractor; i++)
+            for (int j=0; j<=7 - x_substractor; j++)
+            {
+                if(all_moves[7 - j][7 - i])
                 {
-                    eval = FindBestMove(my_board,  minimaler,  depth-1, alpha, beta, maximaler, minimaler,i,j, x_substractor, y_substractor);
+                    eval = FindBestMove(my_board,  minimaler,  depth-1, alpha, beta, maximaler, minimaler,7-j,7-i, x_substractor, y_substractor);
                     bestscore = min(eval, bestscore);
                     beta = min(eval, beta);
                     if (beta<= alpha)
-                        return bestscore;
+                        break;
+                }if(all_moves[7 + j][7 + i])
+                {
+                    eval = FindBestMove(my_board,  minimaler,  depth-1, alpha, beta, maximaler, minimaler,7+j,7+i, x_substractor, y_substractor);
+                    bestscore = min(eval, bestscore);
+                    beta = min(eval, beta);
+                    if (beta<= alpha)
+                        break;
+                }  if(all_moves[7 + j][7 - i])
+                {
+                    eval = FindBestMove(my_board,  minimaler,  depth-1, alpha, beta, maximaler, minimaler,7+j,7-i, x_substractor, y_substractor);
+                    bestscore = min(eval, bestscore);
+                    beta = min(eval, beta);
+                    if (beta<= alpha)
+                        break;
+                }if(all_moves[7 - j][7 + i])
+                {
+                    eval = FindBestMove(my_board,  minimaler,  depth-1, alpha, beta, maximaler, minimaler,7-j,7+i, x_substractor, y_substractor);
+                    bestscore = min(eval, bestscore);
+                    beta = min(eval, beta);
+                    if (beta<= alpha)
+                        break;
                 }
+
+            }
     }
 
-    ALLBOARDS[myboard] = bestscore;
+    //if (move_x==7 and move_y == 10) 
+    //cout<<bestscore<<endl;
+    ALLBOARDS[my_board] = bestscore;
     return bestscore;
 }
 
@@ -110,42 +160,59 @@ int GetBestMove(string str_board, char turn, int depth,char maximaler,char minim
             board[(int)i/15].push_back(str_board[i]);
         }
     }
-    /// Schowing start board
-    for (int i = 0; i<15; i++)
-    {
-        for (int j = 0; j<15; j++)
-        {
-            if (board[i][j] == 'X')
-                cout<<"\033[32m"<<board[i][j]<<" ";
-            else if (board[i][j] == 'O')
-                cout<<"\033[31m" <<board[i][j]<<" ";
-            else
-            {
-                cout<<"\033[0m"<<board[i][j]<<" ";
-            }
-            
-        }
-        cout<<endl;
-    }
 
-    vector<vector<bool>> possible_moves = GetAllMoves(board, x_substractor, y_substractor);
+    vector<vector<bool>> possible_moves = GetAllMoves(board);
+    //cout<<possible_moves[6][9]<<endl;
     int bestScore = INT_MIN;
     int temp;
-    int BestInd = 0;
+    int BestInd = -1;
 
-    for (int i =0; i<15; i++)
+    for (int i =0; i<= 7 - y_substractor; i++)
     {
-        for(int j = 0; j<15; j++)
-        {
-            if (possible_moves[i][j])
+        for(int j = 0; j<=7 - x_substractor; j++)
+        {   
+            //cout<<i<<" "<<j<<endl;
+            //if (7-j == 6 && 7-i==10 or 7+j==6 && 7+i == 10) cout<<"jednak sie da"<<endl;
+            if (possible_moves[7-j][7-i])
             {
-                temp = AI->FindBestMove(board, AI->Opponent_character, depth-1,INT_MIN, INT_MAX ,maximaler, minimaler,  i,  j,  x_substractor ,  y_substractor ) ;
+                temp = AI->FindBestMove(board, AI->Opponent_character, depth-1,INT_MIN, INT_MAX ,maximaler, minimaler, 7 - j, 7 - i,  x_substractor ,  y_substractor ) ;
                 if (temp > bestScore)
                 {
                     bestScore = temp;
-                    BestInd= j*15 + i;
+                    BestInd= 112 - (15*j)-i;                //(7-j)*15 + 7-i;
+                    //cout<<i<<"-"<<j<<endl;
+
+                }
+            }if (possible_moves[7+j][7+i])
+            {
+                temp = AI->FindBestMove(board, AI->Opponent_character, depth-1,INT_MIN, INT_MAX ,maximaler, minimaler,  7 + j, 7 + i,  x_substractor ,  y_substractor ) ;
+                if (temp > bestScore)
+                {
+                    bestScore = temp;
+                    BestInd=  (15*j) + 112 +i;      //(j+7)*15 + 7+i;
+                    //cout<<7+j<<"+"<<7+i<<endl;
+                }
+            }if (possible_moves[7+j][7-i])
+            {
+                temp = AI->FindBestMove(board, AI->Opponent_character, depth-1,INT_MIN, INT_MAX ,maximaler, minimaler, 7 + j, 7 - i,  x_substractor ,  y_substractor ) ;
+                if (temp > bestScore)
+                {
+                    bestScore = temp;
+                    BestInd=  (15*j) + 112 - i;      //(j+7)*15 + 7+i;
+                    //cout<<i<<"-"<<j<<endl;
+
+                }
+            }if (possible_moves[7-j][7+i])
+            {
+                temp = AI->FindBestMove(board, AI->Opponent_character, depth-1,INT_MIN, INT_MAX ,maximaler, minimaler,  7 - j, 7 + i,  x_substractor ,  y_substractor ) ;
+                if (temp > bestScore)
+                {
+                    bestScore = temp;
+                    BestInd=  112-(15*j)+i;
+                    //cout<<7+j<<"+"<<7+i<<endl;
                 }
             }
+
         }
     }
 
@@ -195,11 +262,11 @@ char GetWinner(vector<vector<char>>board, int x_substractor, int y_substractor)
 vector<vector<bool>> GetAllMoves(vector<vector<char>> board, int x_substractor, int y_substractor) //#DONE WORK
 {
     vector<vector<bool>> moves;
-    for (int i = 0; i<15 - x_substractor; i++)
+    for (int i = 0; i<=14; i++)
     {
         vector<bool> empty_vec;
         moves.push_back(empty_vec);
-        for (int j = 0; j<15 - y_substractor; j++)
+        for (int j = 0; j<=14; j++)
         {
             if (board[i][j] == '0')
                 moves[i].push_back(true);
@@ -230,9 +297,9 @@ int GetAmountOf_4_OR_3_InRow(vector<vector<char>>board, char maximaler, char min
 {
     int score = 0;
     int amount_of_maximaler_temp;
-    for (int i = 0; i<=14; i+=1)
+    for (int i = y_substractor; i<=14 - y_substractor; i+=1)
     {
-        for (int j = 0; j<=14; j+=1)
+        for (int j = x_substractor; j<=14 - x_substractor; j+=1)
         {
             amount_of_maximaler_temp = 0;
             if (board[i][j] == maximaler)
@@ -521,7 +588,7 @@ int GetAmountOf_4_OR_3_InRow(vector<vector<char>>board, char maximaler, char min
 
 int main()
 {
-    string str_board = "000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000";
+    string str_board = "000000000000000000000000000000000000000000000000000000000000000000000000XXXX00000000000000000000000O0OOO00000000000000XXXX0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000";
 
     
 
@@ -557,10 +624,14 @@ int main()
         cout<<endl;
     }
 
+    cout<<endl;cout<<endl;cout<<endl;cout<<endl;cout<<endl;
     /// FINDING BEST
-    str_board [ GetBestMove(str_board, 'X', 2, 'X', 'O', 0,0) ] = 'X';
+    int move = GetBestMove(str_board, 'X', 3, 'X', 'O', 1,4);
+    cout<<"MOVE: "<<move<<endl;
+    str_board[ move ] = 'X';
 
     //converting str 15x15 board to vectors of vector  of chars
+    board.clear();
     for (int i =0; i<str_board.length(); i++)
     {
         if (i%15==0) 
