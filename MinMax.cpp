@@ -42,11 +42,11 @@ int MinMax::FindBestMove(vector<vector<char>> board, char turn, int depth,int al
 
     vector<vector<bool>> all_moves =  GetAllMoves(board, x_substractor, y_substractor);
     vector<vector<char>>my_board = board;    //change it to copying later(but is coping already i think)
-    int bestscore = (turn == maximaler) ? -1000 : 1000;
+    int bestscore = (turn == maximaler) ? INT_MIN : INT_MAX;
     my_board[move_x][move_y] = (turn == minimaler) ? maximaler : minimaler;     //not sure if maximaler or minimaler here
     
     ///IDK IF IT IS GOOD???
-    for (int i = 0; i< 10; i++)     //i les then what??
+    for (int i = 0; i< ALLBOARDS.size(); i++)     
     {
         if (ALLBOARDS[i] == my_board)   //mby I can add additional place(char) to the end of my_board, that save its leve
         {                               //so I could find it by levels (how many moves has been done)
