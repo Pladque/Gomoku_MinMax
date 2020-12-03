@@ -507,6 +507,20 @@ int main()
 {
     vector<vector<char>> board;
 
+    vector<char> test1, test2;
+    test.push_back('X')
+    test2.push_back('O')
+    ALLBOARDS.push_back(test)
+
+    for (int i = 0; i< ALLBOARDS.size(); i++)     
+    {
+        if (ALLBOARDS[i] == test)   //mby I can add additional place(char) to the end of my_board, that save its leve
+        {     
+            cout<<"found"<<endl;                          //so I could find it by levels (how many moves has been done)
+            return -7774463;    //code, if FindBestMove return it, function level up shouldnt consider that path
+        }
+    }
+
     for (int i = 0; i<15; i++)
     {
         vector<char> empty_vec;
