@@ -3,6 +3,9 @@
 //#include <bits/stdc++.h>    //min max int values
 #include <map>              //hashmaps
 #include <chrono>			//clock
+#include <thread>
+
+
 
 using namespace std;
 
@@ -17,6 +20,7 @@ int GetAmountOf_4_OR_3_InRow(vector<vector<char>>& board, char& maximaler, char&
 int EvalBoard(vector<vector<char>>& board, char& maximaler, char& minimaler, int x_substractor = 0, int y_substractor = 0);
 void GetAllMoves(vector<vector<char>>& board, vector<vector<bool>>& moves);
 char GetWinner(vector<vector<char>>& board, int x_substractor = 0, int y_substractor = 0);
+int FindBestMove(vector<vector<char>> board, char turn, int depth, int& alpha, int& beta, char maximaler, char minimaler, int move_x, int move_y, int& x_substractor, int& y_substractor);
 
 //vector<vector<vector<char>>> ALLBOARDS;
 map<vector<vector<char>>, int> ALLBOARDS;
@@ -29,7 +33,6 @@ public:
 	char AI_character;
 	char Opponent_character;
 	MinMax(char AI_Char);
-	int FindBestMove(vector<vector<char>> board, char turn, int depth, int& alpha, int& beta, char maximaler, char minimaler, int move_x, int move_y, int& x_substractor, int& y_substractor);
 };
 
 MinMax::MinMax(char AI_Char)
@@ -42,7 +45,7 @@ MinMax::MinMax(char AI_Char)
 
 }
 
-int MinMax::FindBestMove(vector<vector<char>> board, char turn, int depth, int& alpha, int& beta, char maximaler, char minimaler, int move_x, int move_y, int& x_substractor, int& y_substractor)
+int FindBestMove( vector<vector<char>> board, char turn, int depth, int& alpha, int& beta, char maximaler, char minimaler, int move_x, int move_y, int& x_substractor, int& y_substractor)
 {
 	if (depth == 0)
 	{
@@ -51,7 +54,9 @@ int MinMax::FindBestMove(vector<vector<char>> board, char turn, int depth, int& 
 
 	char winner = GetWinner(board, x_substractor, y_substractor);
 	if (winner != '0')
-		return (winner = maximaler) ? INT_MAX : INT_MIN;
+	{
+		return (winner = maximaler) ? INT_MAX : INT_MIN;;
+	}
 
 	int bestscore = (turn == maximaler) ? INT_MIN : INT_MAX;
 	board[move_x][move_y] = (turn == minimaler) ? maximaler : minimaler;
@@ -59,6 +64,7 @@ int MinMax::FindBestMove(vector<vector<char>> board, char turn, int depth, int& 
 	//skipping already considered boards:
 	if (ALLBOARDS.find(board) != ALLBOARDS.end())
 	{
+		//score = ALLBOARDS[board];
 		return ALLBOARDS[board];
 	}
 
@@ -79,46 +85,50 @@ int MinMax::FindBestMove(vector<vector<char>> board, char turn, int depth, int& 
 			{
 				if (all_moves[7 - j][seven_minus_i])
 				{
-					eval = FindBestMove(board, minimaler, depth - 1, alpha, beta, maximaler, minimaler, 7 - j, seven_minus_i, x_substractor, y_substractor);
+					eval = FindBestMove( board, minimaler, depth - 1, alpha, beta, maximaler, minimaler, 7 - j, seven_minus_i, x_substractor, y_substractor);
 					bestscore = max(eval, bestscore);
 					alpha = max(eval, alpha);
 					if (beta <= alpha)
 					{
 						ALLBOARDS[board] = bestscore;
 						//board[move_x][move_y] = '0';
+						//score = bestscore;
 						return bestscore;
 					}
 				}if (all_moves[7 + j][seven_minus_i] && j != 0 && i != 0)
 				{
-					eval = FindBestMove(board, minimaler, depth - 1, alpha, beta, maximaler, minimaler, 7 + j, seven_minus_i, x_substractor, y_substractor);
+					eval = FindBestMove( board, minimaler, depth - 1, alpha, beta, maximaler, minimaler, 7 + j, seven_minus_i, x_substractor, y_substractor);
 					bestscore = max(eval, bestscore);
 					alpha = max(eval, alpha);
 					if (beta <= alpha)
 					{
 						ALLBOARDS[board] = bestscore;
 						//board[move_x][move_y] = '0';
+						//score = bestscore;
 						return bestscore;
 					}
 				}if (all_moves[7 - j][seven_plus_i] && j != 0 && i != 0)
 				{
-					eval = FindBestMove(board, minimaler, depth - 1, alpha, beta, maximaler, minimaler, 7 - j, seven_plus_i, x_substractor, y_substractor);
+					eval = FindBestMove( board, minimaler, depth - 1, alpha, beta, maximaler, minimaler, 7 - j, seven_plus_i, x_substractor, y_substractor);
 					bestscore = max(eval, bestscore);
 					alpha = max(eval, alpha);
 					if (beta <= alpha)
 					{
 						ALLBOARDS[board] = bestscore;
 						//board[move_x][move_y] = '0';
+						//score = bestscore;
 						return bestscore;
 					}
 				}if (all_moves[7 + j][seven_plus_i] && j != 0 && i != 0)
 				{
-					eval = FindBestMove(board, minimaler, depth - 1, alpha, beta, maximaler, minimaler, 7 + j, seven_plus_i, x_substractor, y_substractor);
+					eval = FindBestMove( board, minimaler, depth - 1, alpha, beta, maximaler, minimaler, 7 + j, seven_plus_i, x_substractor, y_substractor);
 					bestscore = max(eval, bestscore);
 					alpha = max(eval, alpha);
 					if (beta <= alpha)
 					{
 						ALLBOARDS[board] = bestscore;
 						//board[move_x][move_y] = '0';
+						//score = bestscore;
 						return bestscore;
 					}
 				}
@@ -137,46 +147,50 @@ int MinMax::FindBestMove(vector<vector<char>> board, char turn, int depth, int& 
 			{
 				if (all_moves[7 - j][seven_minus_i])
 				{
-					eval = FindBestMove(board, minimaler, depth - 1, alpha, beta, maximaler, minimaler, 7 - j, seven_minus_i, x_substractor, y_substractor);
+					eval = FindBestMove( board, minimaler, depth - 1, alpha, beta, maximaler, minimaler, 7 - j, seven_minus_i, x_substractor, y_substractor);
 					bestscore = min(eval, bestscore);
 					beta = min(eval, beta);
 					if (beta <= alpha)
 					{
 						ALLBOARDS[board] = bestscore;
 						//board[move_x][move_y] = '0';
+						//score = bestscore;
 						return bestscore;
 					}
 				} if (all_moves[7 + j][seven_minus_i] && j != 0 && i != 0)
 				{
-					eval = FindBestMove(board, minimaler, depth - 1, alpha, beta, maximaler, minimaler, 7 + j, seven_minus_i, x_substractor, y_substractor);
+					eval = FindBestMove( board, minimaler, depth - 1, alpha, beta, maximaler, minimaler, 7 + j, seven_minus_i, x_substractor, y_substractor);
 					bestscore = min(eval, bestscore);
 					beta = min(eval, beta);
 					if (beta <= alpha)
 					{
 						ALLBOARDS[board] = bestscore;
 						//board[move_x][move_y] = '0';
+						//score = bestscore;
 						return bestscore;
 					}
 				}if (all_moves[7 + j][seven_plus_i] && j != 0 && i != 0)
 				{
-					eval = FindBestMove(board, minimaler, depth - 1, alpha, beta, maximaler, minimaler, 7 + j, seven_plus_i, x_substractor, y_substractor);
+					eval = FindBestMove( board, minimaler, depth - 1, alpha, beta, maximaler, minimaler, 7 + j, seven_plus_i, x_substractor, y_substractor);
 					bestscore = min(eval, bestscore);
 					beta = min(eval, beta);
 					if (beta <= alpha)
 					{
 						ALLBOARDS[board] = bestscore;
 						//board[move_x][move_y] = '0';
+						//score = bestscore;
 						return bestscore;
 					}
 				} if (all_moves[7 - j][seven_plus_i] && j != 0 && i != 0)
 				{
-					eval = FindBestMove(board, minimaler, depth - 1, alpha, beta, maximaler, minimaler, 7 - j, seven_plus_i, x_substractor, y_substractor);
+					eval = FindBestMove( board, minimaler, depth - 1, alpha, beta, maximaler, minimaler, 7 - j, seven_plus_i, x_substractor, y_substractor);
 					bestscore = min(eval, bestscore);
 					beta = min(eval, beta);
 					if (beta <= alpha)
 					{
 						ALLBOARDS[board] = bestscore;
 						//board[move_x][move_y] = '0';
+						//score = bestscore;
 						return bestscore;
 					}
 
@@ -188,10 +202,27 @@ int MinMax::FindBestMove(vector<vector<char>> board, char turn, int depth, int& 
 	}
 	ALLBOARDS[board] = bestscore;
 	//board[move_x][move_y] = '0';
+	//score = bestscore;
 	return bestscore;
 }
 
-int GetBestMove(string &str_board, char turn, int depth, char maximaler, char minimaler, int x_substractor, int  y_substractor)    //function that i will call from python
+void FindBestScoreInBoardAndReplaceBestIfBetter(bool if_move_possible, int &BestInd, int &BestScore,int &score, vector<vector<char>> board, char turn, int depth, int& alpha, int& beta, char maximaler, char minimaler, int move_x, int move_y, int& x_substractor, int& y_substractor)
+{
+	if (if_move_possible)
+	{
+		int temp = FindBestMove(board, turn, depth, alpha, beta, maximaler, minimaler, move_x, move_y, x_substractor, y_substractor);
+		score = temp;
+		
+		if (score > BestScore)
+		{
+			BestScore = score;
+			BestInd =(15 * move_x) + move_y;             
+			//cout << "CURR MAX: " << BestScore <<"  CURR BEST IND: " << BestInd<< endl;
+		}
+	}
+}
+
+int GetBestMove(string& str_board, char turn, int depth, char maximaler, char minimaler, int x_substractor, int  y_substractor)    //function that i will call from python
 {
 	MinMax* AI = new MinMax(maximaler);
 	vector<vector<char>> board;
@@ -213,59 +244,36 @@ int GetBestMove(string &str_board, char turn, int depth, char maximaler, char mi
 	vector<vector<bool>> possible_moves;
 	GetAllMoves(board, possible_moves);
 	int bestScore = INT_MIN;
-	int temp;
+	int temp = 0;
 	int BestInd;
 
 	int alpha = INT_MIN;
 	int beta = INT_MAX;
 
+	const int number_of_threads = 4;	//std::thread::hardware_concurrency();
+	vector< thread > threads;
+
+	int score1=0, score2=0, score3=0, score4=0;
+
 	for (int i = 0; i <= 7 - y_substractor; i++)
 	{
 		for (int j = 0; j <= 7 - x_substractor; j++)
 		{
+			thread* thread_1 = new thread(FindBestScoreInBoardAndReplaceBestIfBetter, possible_moves[7 - j][7 - i], ref(BestInd), ref(bestScore), ref(score1), board, AI->Opponent_character, depth - 1, ref(alpha), ref(beta), maximaler, minimaler, 7 - j, 7 - i, ref(x_substractor), ref(y_substractor));
+			thread* thread_2 = new thread(FindBestScoreInBoardAndReplaceBestIfBetter, possible_moves[7 + j][7 + i], ref(BestInd), ref(bestScore), ref(score2), board, AI->Opponent_character, depth - 1, ref(alpha), ref(beta), maximaler, minimaler, 7 + j, 7 + i, ref(x_substractor), ref(y_substractor));
+			thread* thread_3 = new thread(FindBestScoreInBoardAndReplaceBestIfBetter, possible_moves[7 + j][7 - i], ref(BestInd), ref(bestScore), ref(score3), board, AI->Opponent_character, depth - 1, ref(alpha), ref(beta), maximaler, minimaler, 7 + j, 7 - i, ref(x_substractor), ref(y_substractor));
+			thread* thread_4 = new thread(FindBestScoreInBoardAndReplaceBestIfBetter, possible_moves[7 - j][7 + i], ref(BestInd), ref(bestScore), ref(score4), board, AI->Opponent_character, depth - 1, ref(alpha), ref(beta), maximaler, minimaler, 7 - j, 7 + i, ref(x_substractor), ref(y_substractor));
+			
 			cout << i << " " << j << endl;
-			if (possible_moves[7 - j][7 - i])
-			{
-				temp = AI->FindBestMove(board, AI->Opponent_character, depth - 1, alpha, beta, maximaler, minimaler, 7 - j, 7 - i, x_substractor, y_substractor);
-				if (temp > bestScore)
-				{
-					bestScore = temp;
-					BestInd = 112 - (15 * j) - i;                //(7-j)*15 + 7-i;
-				}
 
-				if (bestScore == INT_MAX) return BestInd;
-			}if (possible_moves[7 + j][7 + i])
-			{
-				temp = AI->FindBestMove(board, AI->Opponent_character, depth - 1, alpha, beta, maximaler, minimaler, 7 + j, 7 + i, x_substractor, y_substractor);
-				if (temp > bestScore)
-				{
-					bestScore = temp;
-					BestInd = (15 * j) + 112 + i;
-				}
+			thread_1->join();
+			thread_2->join();
+			thread_3->join();
+			thread_4->join();
 
-				if (bestScore == INT_MAX) return BestInd;
-			}if (possible_moves[7 + j][7 - i])
-			{
-				temp = AI->FindBestMove(board, AI->Opponent_character, depth - 1, alpha, beta, maximaler, minimaler, 7 + j, 7 - i, x_substractor, y_substractor);
-				if (temp > bestScore)
-				{
-					bestScore = temp;
-					BestInd = (15 * j) + 112 - i;
 
-				}
-
-				if (bestScore == INT_MAX) return BestInd;
-			}if (possible_moves[7 - j][7 + i])
-			{
-				temp = AI->FindBestMove(board, AI->Opponent_character, depth - 1, alpha, beta, maximaler, minimaler, 7 - j, 7 + i, x_substractor, y_substractor);
-				if (temp > bestScore)
-				{
-					bestScore = temp;
-					BestInd = 112 - (15 * j) + i;
-				}
-
-				if (bestScore == INT_MAX) return BestInd;
-			}
+			if (bestScore == INT_MAX) return BestInd;
+			
 		}
 	}
 	return BestInd;
@@ -698,7 +706,7 @@ int main()
 	int move = GetBestMove(str_board, 'X', 3, 'X', 'O', 0, 0);
 	cout << "MOVE: " << move << endl;
 
-	cout << "IT TOOK: " << float(clock() - begin_time) / CLOCKS_PER_SEC<<endl;
+	cout << "IT TOOK: " << float(clock() - begin_time) / CLOCKS_PER_SEC << endl;
 	str_board[move] = 'X';
 
 	//converting str 15x15 board to vectors of vector  of chars
@@ -739,5 +747,5 @@ int main()
 	}
 
 
-	
+
 }
