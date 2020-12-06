@@ -10,16 +10,10 @@
 using namespace std;
 
 ///OPTYMALIZATION IDEAS ///
-//1 instead of checing if char is 'X' or 'O' ot '0' etc just do sth like "if 3. bit is 1, then its 0 so..."
-//2. in GetAmountOf_4_OR_3_InRow store values like "7-1, etc"	DONE
-//3. change x_substractor to left_x_substractor and right_x_substracotr, same with y
 //4. Made data base from best moves for first few steps
-//5. watch some gumoku tutorials, they mayu be helpful
 //6. clean up code
 //7. add file where i will save best moves
 //8. Build it, and run .exe from python (use file to communicate python<->cpp)
-//9. fix/rewrite Evaluation function
-//10. test eval
 //11. try some optymalization (group ifs,less math etc)
 //12. mby add substracorts to Board Ealuation
 //13. to GetWinner add checking if there are  exacly 5 in row(and not f.e 6)
@@ -28,7 +22,7 @@ int GetAmountOf_4_OR_3_InRow(vector<vector<char>>& board, char& maximaler, char&
 int EvalBoard(vector<vector<char>>& board, char& maximaler, char& minimaler);
 void GetAllMoves(vector<vector<char>>& board, vector<vector<bool>>& moves);
 char GetWinner(vector<vector<char>>& board);
-int FindBestMove(vector<vector<char>> board, char turn, int depth, int& alpha, int& beta, char &maximaler, char &minimaler, int move_x, int move_y);
+int FindBestMove(vector<vector<char>> board, char turn, int depth, int& alpha, int& beta, char& maximaler, char& minimaler, int move_x, int move_y);
 
 map<vector<vector<char>>, int> ALLBOARDS;
 
@@ -50,7 +44,7 @@ MinMax::MinMax(char AI_Char)
 		Opponent_character = 'X';
 }
 
-int FindBestMove(vector<vector<char>> board, char turn, int depth, int& alpha, int& beta, char &maximaler, char &minimaler,
+int FindBestMove(vector<vector<char>> board, char turn, int depth, int& alpha, int& beta, char& maximaler, char& minimaler,
 	int move_x, int move_y)
 {
 	if (depth == 0)
@@ -73,10 +67,10 @@ int FindBestMove(vector<vector<char>> board, char turn, int depth, int& alpha, i
 	}
 
 	int bestscore = (turn == maximaler) ? INT_MIN : INT_MAX;
-	
+
 	vector<vector<bool>> all_moves;
 	GetAllMoves(board, all_moves);
-	
+
 	int eval;
 
 	int seven_minus_i;
@@ -139,7 +133,7 @@ int FindBestMove(vector<vector<char>> board, char turn, int depth, int& alpha, i
 						}
 					}
 				}
-				
+
 
 			}
 		}
@@ -361,10 +355,8 @@ int EvalBoard(vector<vector<char>>& board, char& maximaler, char& minimaler)
 	case 'O':
 		return INT_MIN;
 	default:
-
 		return GetAmountOf_4_OR_3_InRow(board, maximaler, minimaler);
 	}
-
 }
 
 int GetAmountOf_4_OR_3_InRow(vector<vector<char>>& board, char& maximaler, char& minimaler) //AI +, player -
@@ -841,15 +833,29 @@ int main()
 		board_file.close();
 	}
 
-	// if board is empty, go middle
-	if (str_board == "000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000")
+	str_board[112] = 'O';
+
+	// LOKONG FOR SAVED  BOARD HERE
+
+	// if board is empty, go middle, idk if that if work XDDD
+	bool only_zeros = true;
+	for (int i = 0; i < str_board.length(); i++)
+	{
+		if (str_board[i] != '0')
+		{
+			only_zeros = false;
+			break;
+		}
+	}
+	if (only_zeros)
 	{
 		fstream return_file;
 		return_file.open("string_index_return.txt", ios::out);
 		return_file << 112;
 		return_file.close();
+		return 0;
 	}
-
+	/*
 	str_board[98] = 'X';
 	str_board[99] = 'O';
 	str_board[100] = 'X';
@@ -863,6 +869,7 @@ int main()
 	str_board[178] = 'X';
 	str_board[193] = 'X';
 	str_board[208] = 'O';
+	*/
 
 	//converting str 15x15 board to vectors of vector  of chars
 	vector<vector<char>> board;
