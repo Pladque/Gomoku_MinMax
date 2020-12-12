@@ -33,13 +33,20 @@ for y in FIELD_Y:
             board_str += 'X'
         else:
             board_str+='0'
-        print(SS[x,y])
 
 #search board in file_moves_data_r
+board_str = "000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000O00000000000000000000"
+move = 0
+for line in file_moves_data_r.readlines():
+    if  board_str == line[:line.index(';')].replace(' ', ''):
+        move = int(line[line.index(';')+1:].replace(' ', '').replace('\n', ''))
+        break
+
 #calc good depth
 
 #save board and depth to file_board_w
-file_board_w.write(board_str)
+#file_board_w.write(board_str)
+
 #run .exe 
 #w8 for end
 #read file_move_from_cpp_r file
