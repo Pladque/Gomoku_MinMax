@@ -16,14 +16,12 @@ using namespace std;
 //18. ask on group if it is easy to reprogram it to GPU
 //19. make bigger data prevoiusly calculated moves
 
-// Functions
 int GetAmountOf_4_OR_3_InRow(vector<vector<char>>& board, char& maximaler, char& minimaler);
 int EvalBoard(vector<vector<char>>& board, char& maximaler, char& minimaler);
 void GetAllMoves(vector<vector<char>>& board, vector<vector<bool>>& moves);
 char GetWinner(vector<vector<char>>& board);
 int FindBestMove(vector<vector<char>> board, char turn, int depth, int& alpha, int& beta, char& maximaler, char& minimaler, int move_x, int move_y);
 
-// Global variable
 map<vector<vector<char>>, int> ALLBOARDS;
 
 class MinMax
@@ -133,6 +131,8 @@ int FindBestMove(vector<vector<char>> board, char turn, int depth, int& alpha, i
 						}
 					}
 				}
+
+
 			}
 		}
 	}
@@ -201,6 +201,7 @@ int FindBestMove(vector<vector<char>> board, char turn, int depth, int& alpha, i
 void FindBestScoreInBoardAndReplaceBestIfBetter(bool if_move_possible, int& BestInd, int& BestScore, int& score, vector<vector<char>> board, char turn, int depth, int& alpha, int& beta,
 	char maximaler, char minimaler, int move_x, int move_y)
 {
+
 	if (if_move_possible)
 	{
 		score = FindBestMove(board, turn, depth, alpha, beta, maximaler, minimaler, move_x, move_y);
@@ -208,7 +209,10 @@ void FindBestScoreInBoardAndReplaceBestIfBetter(bool if_move_possible, int& Best
 		{
 			BestScore = score;
 			BestInd = (15 * move_x) + move_y;
+
+
 		}
+
 	}
 }
 
@@ -217,7 +221,7 @@ int GetBestMove(string& str_board, char turn, int depth, char maximaler, char mi
 	MinMax* AI = new MinMax(maximaler);
 	vector<vector<char>> board;
 
-	//converting str 15x15 board to vector of vector of chars
+	//converting str 15x15 board to vectors of vector  of chars
 	for (int i = 0; i < str_board.length(); i++)
 	{
 		if (i % 15 == 0)
@@ -269,6 +273,7 @@ int GetBestMove(string& str_board, char turn, int depth, char maximaler, char mi
 
 			if (seven_minus_j <= right_x_subtstractor && seven_minus_j >= left_x_subtstractor && seven_plus_i <= right_y_subtstractor && seven_plus_i >= left_y_subtstractor)
 				threads.push_back(thread(FindBestScoreInBoardAndReplaceBestIfBetter, possible_moves[seven_minus_j][seven_plus_i], ref(BestInd), ref(bestScore), ref(score4), board, AI->Opponent_character, depth - 1, ref(alpha), ref(beta), maximaler, minimaler, seven_minus_j, seven_plus_i));
+
 		}
 	}
 
@@ -350,14 +355,18 @@ char GetWinner(vector<vector<char>>& board)
 						return board[i][j];
 					}
 				}
+
+
 			}
 		}
 	}
+
 	return '0';
 }
-//returns 15x15 board filled with bools. If field is true then its valid move
+//return 15x15 board filled with bool. If field is true then its valid move
 void GetAllMoves(vector<vector<char>>& board, vector<vector<bool>>& moves)
 {
+	//vector<vector<bool>> moves;
 	for (int i = 0; i <= 14; i++)
 	{
 		vector<bool> empty_vec;
@@ -374,6 +383,7 @@ void GetAllMoves(vector<vector<char>>& board, vector<vector<bool>>& moves)
 				moves[i].push_back(false);
 		}
 	}
+
 }
 
 //Evalueate the board
@@ -397,7 +407,6 @@ int GetAmountOf_4_OR_3_InRow(vector<vector<char>>& board, char& maximaler, char&
 	int amount_of_maximaler_temp;
 	int i_minus_sth[4];
 	int j_minus_sth[4];
-
 	for (int i = 0; i <= 14 - 0; i++)
 	{
 		i_minus_sth[3] = i - 4;
@@ -440,6 +449,7 @@ int GetAmountOf_4_OR_3_InRow(vector<vector<char>>& board, char& maximaler, char&
 						{
 							plus_score += 2;
 						}
+
 					}
 					amount_of_maximaler_temp = 1;
 					if (!(board[i_minus_sth[1]][j] == minimaler || board[i_minus_sth[0]][j] == minimaler))
@@ -462,10 +472,8 @@ int GetAmountOf_4_OR_3_InRow(vector<vector<char>>& board, char& maximaler, char&
 							plus_score += 1;
 						}
 					}
-
 					amount_of_maximaler_temp = 1;
-
-					//checking diagnals from bottom left to upper right -> or opposite XD
+					//checking diagnals from bottom left to upper right
 					if (j >= 4)
 					{
 						if (!(board[i_minus_sth[2]][j_minus_sth[2]] == minimaler
@@ -493,9 +501,7 @@ int GetAmountOf_4_OR_3_InRow(vector<vector<char>>& board, char& maximaler, char&
 								plus_score += 2;
 							}
 						}
-
 						amount_of_maximaler_temp = 1;
-						
 						if (!(board[i_minus_sth[1]][j_minus_sth[1]] == minimaler || board[i_minus_sth[0]][j_minus_sth[0]] == minimaler))
 						{
 							if (board[i][j] == board[i_minus_sth[0]][j_minus_sth[0]])
@@ -517,9 +523,6 @@ int GetAmountOf_4_OR_3_InRow(vector<vector<char>>& board, char& maximaler, char&
 							}
 						}
 					}
-
-					amount_of_maximaler_temp = 1;
-
 					//checking diagnals from bottom left to upper right     
 					if (j <= 10)
 					{
@@ -572,12 +575,10 @@ int GetAmountOf_4_OR_3_InRow(vector<vector<char>>& board, char& maximaler, char&
 						}
 					}
 				}
-
 				amount_of_maximaler_temp = 1;
-
 				if (j >= 4)
 				{
-					//checking row
+					//checking row i think
 					if (!(board[i][j - 3] == minimaler
 						|| board[i][j_minus_sth[1]] == minimaler || board[i][j_minus_sth[0]] == minimaler))
 					{
@@ -664,9 +665,7 @@ int GetAmountOf_4_OR_3_InRow(vector<vector<char>>& board, char& maximaler, char&
 							minus_score -= 2;
 						}
 					}
-
 					amount_of_maximaler_temp = 1;
-
 					if (!(board[i_minus_sth[1]][j] == maximaler || board[i_minus_sth[0]][j] == maximaler))
 					{
 						if (board[i][j] == board[i_minus_sth[0]][j])
@@ -689,7 +688,6 @@ int GetAmountOf_4_OR_3_InRow(vector<vector<char>>& board, char& maximaler, char&
 					}
 
 					amount_of_maximaler_temp = 1;
-
 					if (j <= 10)
 					{
 						//checking diagnals from bottom left to upper right     
@@ -719,9 +717,7 @@ int GetAmountOf_4_OR_3_InRow(vector<vector<char>>& board, char& maximaler, char&
 							}
 
 						}
-
 						amount_of_maximaler_temp = 1;
-
 						if (!(board[i_minus_sth[1]][j + 2] == maximaler || board[i_minus_sth[0]][j + 1] == maximaler))
 						{
 							if (board[i][j] == board[i_minus_sth[0]][j + 1])
@@ -743,8 +739,6 @@ int GetAmountOf_4_OR_3_InRow(vector<vector<char>>& board, char& maximaler, char&
 							}
 						}
 					}
-
-					amount_of_maximaler_temp = 1;
 
 					if (j >= 4)
 					{
@@ -773,10 +767,9 @@ int GetAmountOf_4_OR_3_InRow(vector<vector<char>>& board, char& maximaler, char&
 							{
 								minus_score -= 2;
 							}
-						}
 
+						}
 						amount_of_maximaler_temp = 1;
-						
 						if (!(board[i_minus_sth[1]][j_minus_sth[1]] == maximaler || board[i_minus_sth[0]][j_minus_sth[0]] == maximaler))
 						{
 							if (board[i][j] == board[i_minus_sth[0]][j_minus_sth[0]])
@@ -791,16 +784,19 @@ int GetAmountOf_4_OR_3_InRow(vector<vector<char>>& board, char& maximaler, char&
 							{
 								amount_of_maximaler_temp++;
 							}
+
+
 							if (amount_of_maximaler_temp == 3)
 							{
 								minus_score -= 1;
 							}
 						}
-					}
-				}
 
+					}
+
+
+				}
 				amount_of_maximaler_temp = 1;
-				
 				if (j >= 4)
 				{
 					//checking row
@@ -828,10 +824,9 @@ int GetAmountOf_4_OR_3_InRow(vector<vector<char>>& board, char& maximaler, char&
 						{
 							minus_score -= 2;
 						}
-					}
 
+					}
 					amount_of_maximaler_temp = 1;
-					
 					if (!(board[i][j_minus_sth[1]] == maximaler || board[i][j_minus_sth[0]] == maximaler))
 					{
 						if (board[i][j] == board[i][j_minus_sth[0]])
@@ -853,7 +848,6 @@ int GetAmountOf_4_OR_3_InRow(vector<vector<char>>& board, char& maximaler, char&
 						}
 					}
 				}
-				
 				if (minus_score < -5) return INT_MIN;   //bc thats mean that opponent has a lot possibilities
 				amount_of_maximaler_temp = 1;
 			}
@@ -865,7 +859,6 @@ int GetAmountOf_4_OR_3_InRow(vector<vector<char>>& board, char& maximaler, char&
 int main()
 {
 	bool making_data = false;
-	bool print_board = true;
 	int depth = 1;
 
 	int left_x_subtstractor = 0, right_x_subtstractor = 14, left_y_subtstractor = 0, right_y_subtstractor = 14;
@@ -891,47 +884,44 @@ int main()
 
 		if (making_data) str_board[index] = 'O';
 
-		if(print_board)
+		// COnvertign str_board to vector board
+		vector<vector<char>> board;
+		for (int i = 0; i < str_board.length(); i++)
 		{
-			// Converting str_board to vector board
-			vector<vector<char>> board;
-			for (int i = 0; i < str_board.length(); i++)
+			if (i % 15 == 0)
 			{
-				if (i % 15 == 0)
-				{
-					vector<char> empty_vec;
-					board.push_back(empty_vec);
-				}
-				if (str_board[i] == '0' || str_board[i] == 'O' || str_board[i] == 'X')
-				{
-					board[(int)i / 15].push_back(str_board[i]);
-				}
+				vector<char> empty_vec;
+				board.push_back(empty_vec);
 			}
-
-			/// Schowing not changed board
-			vector<vector<bool>> moves;
-			GetAllMoves(board, moves);
-			for (int i = 0; i < 15; i++)
+			if (str_board[i] == '0' || str_board[i] == 'O' || str_board[i] == 'X')
 			{
-				for (int j = 0; j < 15; j++)
-				{
-					if (board[i][j] == 'X')
-						cout << "\033[32m" << board[i][j] << " ";
-					else if (board[i][j] == 'O')
-						cout << "\033[31m" << board[i][j] << " ";
-					else if (moves[i][j])
-						cout << "\033[33m" << board[i][j] << " ";
-					else if (j <= right_x_subtstractor && j >= left_x_subtstractor && i <= right_y_subtstractor && i >= left_y_subtstractor)
-						cout << "\033[34m" << board[i][j] << " ";
-					else
-						cout << "\033[0m" << board[i][j] << " ";
-
-				}
-				cout << "\033[0m" << endl;
+				board[(int)i / 15].push_back(str_board[i]);
 			}
 		}
 
-		// if board is empty, go middl
+		/// Schowing not changed board
+		vector<vector<bool>> moves;
+		GetAllMoves(board, moves);
+		for (int i = 0; i < 15; i++)
+		{
+			for (int j = 0; j < 15; j++)
+			{
+				if (board[i][j] == 'X')
+					cout << "\033[32m" << board[i][j] << " ";
+				else if (board[i][j] == 'O')
+					cout << "\033[31m" << board[i][j] << " ";
+				else if (moves[i][j])
+					cout << "\033[33m" << board[i][j] << " ";
+				else if (j <= right_x_subtstractor && j >= left_x_subtstractor && i <= right_y_subtstractor && i >= left_y_subtstractor)
+					cout << "\033[34m" << board[i][j] << " ";
+				else
+					cout << "\033[0m" << board[i][j] << " ";
+
+			}
+			cout << "\033[0m" << endl;
+		}
+
+		// if board is empty, go middle, idk if that if work XDDD
 		bool only_zeros = true;
 		for (int i = 0; i < str_board.length(); i++)
 		{
