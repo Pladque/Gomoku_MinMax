@@ -13,7 +13,6 @@ using namespace std;
 //6. clean up code
 //8. Build it, and run .exe from python (use file to communicate python<->cpp)
 //11. try some optymalization (group ifs,less math etc)
-//14. cut considering fields at start, to the square where was the (for example) last 3 moves. (another words, if in last 3 moves, nobody made move in top left corner (with size for example 4x4), then dont consider squarethat 
 //18. ask on group if it is easy to reprogram it to GPU
 //19. make bigger data prevoiusly calculated moves
 
@@ -210,14 +209,14 @@ void FindBestScoreInBoardAndReplaceBestIfBetter(bool if_move_possible, int& Best
 		{
 			BestScore = score;
 			BestInd = (15 * move_x) + move_y;
-			
-			
+
+
 		}
 
 	}
 }
 
-int GetBestMove(string& str_board, char turn, int depth, char maximaler, char minimaler)    //function that i will call from python
+int GetBestMove(string& str_board, char turn, int depth, char maximaler, char minimaler, int left_x_subtstractor, int right_x_subtstractor, int left_y_subtstractor, int right_y_subtstractor)    //function that i will call from python
 {
 	MinMax* AI = new MinMax(maximaler);
 	vector<vector<char>> board;
@@ -263,11 +262,18 @@ int GetBestMove(string& str_board, char turn, int depth, char maximaler, char mi
 		{
 			seven_minus_j = 7 - j;
 			seven_plus_j = 7 + j;
+			if (seven_minus_j <= right_x_subtstractor && seven_minus_j >= left_x_subtstractor && seven_minus_i <= right_y_subtstractor && seven_minus_i >= left_y_subtstractor)
+				threads.push_back(thread(FindBestScoreInBoardAndReplaceBestIfBetter, possible_moves[seven_minus_j][seven_minus_i], ref(BestInd), ref(bestScore), ref(score1), board, AI->Opponent_character, depth - 1, ref(alpha), ref(beta), maximaler, minimaler, seven_minus_j, seven_minus_i));
 
-			threads.push_back(thread(FindBestScoreInBoardAndReplaceBestIfBetter, possible_moves[seven_minus_j][seven_minus_i], ref(BestInd), ref(bestScore), ref(score1), board, AI->Opponent_character, depth - 1, ref(alpha), ref(beta), maximaler, minimaler, seven_minus_j, seven_minus_i));
-			threads.push_back(thread(FindBestScoreInBoardAndReplaceBestIfBetter, possible_moves[seven_plus_j][seven_plus_i], ref(BestInd), ref(bestScore), ref(score2), board, AI->Opponent_character, depth - 1, ref(alpha), ref(beta), maximaler, minimaler, seven_plus_j, seven_plus_i));
-			threads.push_back(thread(FindBestScoreInBoardAndReplaceBestIfBetter, possible_moves[seven_plus_j][seven_minus_i], ref(BestInd), ref(bestScore), ref(score3), board, AI->Opponent_character, depth - 1, ref(alpha), ref(beta), maximaler, minimaler, seven_plus_j, seven_minus_i));
-			threads.push_back(thread(FindBestScoreInBoardAndReplaceBestIfBetter, possible_moves[seven_minus_j][seven_plus_i], ref(BestInd), ref(bestScore), ref(score4), board, AI->Opponent_character, depth - 1, ref(alpha), ref(beta), maximaler, minimaler, seven_minus_j, seven_plus_i));
+			if (seven_plus_j <= right_x_subtstractor && seven_plus_j >= left_x_subtstractor && seven_plus_i <= right_y_subtstractor && seven_plus_i >= left_y_subtstractor)
+				threads.push_back(thread(FindBestScoreInBoardAndReplaceBestIfBetter, possible_moves[seven_plus_j][seven_plus_i], ref(BestInd), ref(bestScore), ref(score2), board, AI->Opponent_character, depth - 1, ref(alpha), ref(beta), maximaler, minimaler, seven_plus_j, seven_plus_i));
+
+			if (seven_plus_j <= right_x_subtstractor && seven_plus_j >= left_x_subtstractor && seven_minus_i <= right_y_subtstractor && seven_minus_i >= left_y_subtstractor)
+				threads.push_back(thread(FindBestScoreInBoardAndReplaceBestIfBetter, possible_moves[seven_plus_j][seven_minus_i], ref(BestInd), ref(bestScore), ref(score3), board, AI->Opponent_character, depth - 1, ref(alpha), ref(beta), maximaler, minimaler, seven_plus_j, seven_minus_i));
+
+			if (seven_minus_j <= right_x_subtstractor && seven_minus_j >= left_x_subtstractor && seven_plus_i <= right_y_subtstractor && seven_plus_i >= left_y_subtstractor)
+				threads.push_back(thread(FindBestScoreInBoardAndReplaceBestIfBetter, possible_moves[seven_minus_j][seven_plus_i], ref(BestInd), ref(bestScore), ref(score4), board, AI->Opponent_character, depth - 1, ref(alpha), ref(beta), maximaler, minimaler, seven_minus_j, seven_plus_i));
+
 		}
 	}
 
@@ -296,7 +302,7 @@ char GetWinner(vector<vector<char>>& board)
 				// Checking column
 				if (i >= 4 && board[i][j] == board[i_minus_sth[0]][j] && board[i_minus_sth[0]][j] == board[i_minus_sth[1]][j]
 					&& board[i_minus_sth[1]][j] == board[i_minus_sth[2]][j] && board[i_minus_sth[2]][j] == board[i_minus_sth[3]][j]
-					&& ((i == 14 || board[i + 1][j] != board[i][j]))) 
+					&& ((i == 14 || board[i + 1][j] != board[i][j])))
 				{
 					if (i > 4 && ((i == 14 || board[i + 1][j] != board[i][j]) && board[i][j] != board[i - 5][j]))
 					{
@@ -310,7 +316,7 @@ char GetWinner(vector<vector<char>>& board)
 				//checking row
 				if (j >= 4 && board[i][j] == board[i][j - 1] && board[i][j - 1] == board[i][j - 2]
 					&& board[i][j - 2] == board[i][j - 3] && board[i][j - 3] == board[i][j - 4]
-					&& (j == 14 || board[i][j + 1] != board[i][j]) && board[i][j - 5] != board[i][j]) 
+					&& (j == 14 || board[i][j + 1] != board[i][j]) && board[i][j - 5] != board[i][j])
 				{
 					if (j > 4 && (j == 14 || board[i][j + 1] != board[i][j]) && board[i][j - 5] != board[i][j])
 					{
@@ -351,7 +357,7 @@ char GetWinner(vector<vector<char>>& board)
 					}
 				}
 
-				
+
 			}
 		}
 	}
@@ -855,7 +861,8 @@ int main()
 {
 	bool making_data = false;
 	int depth = 1;
-	int left_x_subtstractor = 0, right_x_subtstractor = 0, left_y_subtstractor = 0, right_y_subtstractor = 0;
+
+	int left_x_subtstractor = 0, right_x_subtstractor = 14, left_y_subtstractor = 0, right_y_subtstractor = 14;
 	string str_board;
 
 	int indexes_range;
@@ -863,7 +870,7 @@ int main()
 		indexes_range = 255;
 	else
 		indexes_range = 1;
-	// Add loop HERE to making data, that will create board and look for best move
+
 	for (int index = 0; index < indexes_range; index++)
 	{
 		cout << "INDEX: " << index << endl;
@@ -872,12 +879,13 @@ int main()
 		board_file.open("board.txt");
 		while (!board_file.eof())
 		{
-			board_file >> str_board >> depth; //>> left_x_subtstractor >> right_x_subtstractor >> left_y_subtstractor >> right_y_subtstractor;
+			board_file >> str_board >> depth >> left_x_subtstractor >> right_x_subtstractor >> left_y_subtstractor >> right_y_subtstractor;
 		}
 		board_file.close();
-		
+
 		if (making_data) str_board[index] = 'O';
 
+		// COnvertign str_board to vector board
 		vector<vector<char>> board;
 		for (int i = 0; i < str_board.length(); i++)
 		{
@@ -905,6 +913,8 @@ int main()
 					cout << "\033[31m" << board[i][j] << " ";
 				else if (moves[i][j])
 					cout << "\033[33m" << board[i][j] << " ";
+				else if (j <= right_x_subtstractor && j >= left_x_subtstractor && i <= right_y_subtstractor && i >= left_y_subtstractor)
+					cout << "\033[34m" << board[i][j] << " ";
 				else
 					cout << "\033[0m" << board[i][j] << " ";
 
@@ -933,15 +943,10 @@ int main()
 
 		/// FINDING BEST MOVE
 		const clock_t begin_time = clock();
-		//cout << str_board << endl;
-		int move = GetBestMove(str_board, 'X', depth, 'X', 'O');
+		int move = GetBestMove(str_board, 'X', depth, 'X', 'O', left_x_subtstractor, right_x_subtstractor, left_y_subtstractor, right_y_subtstractor);
 		cout << "MOVE: " << move << endl;
-		//str_board[move] = 'X';
 		cout << "IT TOOK: " << float(clock() - begin_time) / CLOCKS_PER_SEC << endl;
 
-		//move = GetBestMove(str_board, 'X', depth, 'X', 'O', left_x_subtstractor, right_x_subtstractor, left_y_subtstractor, right_y_subtstractor);
-		//cout << "MOVE: " << move << endl;
-		//str_board[move] = 'X';
 
 		// Saving temp best move
 		fstream return_file;
@@ -956,113 +961,7 @@ int main()
 			calculated_moves << (string)str_board << " ; " << move << endl;	///UN COMMENT TO MAKE DATA
 			calculated_moves.close();
 
-		
+
 	}
 	exit(0);
 }
-
-/// OLD MAIN WITH BOARD SHOWING ///
-/// 
-/*
-int main()
-{
-
-fstream board_file, return_file;
-board_file.open("board.txt");
-return_file.open("string_index_return.txt", ios::out);
-return_file.open("calculated_moves.csv", ios::out);
-string str_board;
-while (!board_file.eof())
-{
-	board_file >> str_board;
-}
-board_file.close();
-
-vector<vector<char>> board;
-//converting str 15x15 board to vectors of vector  of chars
-for (int i = 0; i < str_board.length(); i++)
-{
-	if (i % 15 == 0)
-	{
-		vector<char> empty_vec;
-		board.push_back(empty_vec);
-	}
-	if (str_board[i] == '0' || str_board[i] == 'O' || str_board[i] == 'X')
-	{
-		board[(int)i / 15].push_back(str_board[i]);
-	}
-}
-/// Schowing changed board
-for (int i = 0; i < 15; i++)
-{
-	for (int j = 0; j < 15; j++)
-	{
-		if (board[i][j] == 'X')
-			cout << "\033[32m" << board[i][j] << " ";
-		else if (board[i][j] == 'O')
-			cout << "\033[31m" << board[i][j] << " ";
-		else
-		{
-			cout << "\033[0m" << board[i][j] << " ";
-		}
-
-	}
-	cout << endl;
-}
-
-//cout << endl; cout << endl; cout << endl; cout << endl; cout << endl;
-
-/// FINDING BEST
-const clock_t begin_time = clock();
-int move = GetBestMove(str_board, 'X', 3, 'X', 'O', 3, 3);
-cout << "MOVE: " << move << endl;
-
-cout << "IT TOOK: " << float(clock() - begin_time) / CLOCKS_PER_SEC << endl;
-//return_file.clear();
-return_file << move;
-return_file.close();
-
-
-//str_board[move] = 'X';
-//converting str 15x15 board to vectors of vector  of chars
-board.clear();
-for (int i = 0; i < str_board.length(); i++)
-{
-	if (i % 15 == 0)
-	{
-		vector<char> empty_vec;
-		board.push_back(empty_vec);
-	}
-	if (str_board[i] == '0' || str_board[i] == 'O' || str_board[i] == 'X')
-	{
-		board[(int)i / 15].push_back(str_board[i]);
-	}
-}
-
-//making opponent move
-//str_board[100] = 'O';
-//str_board[101] = 'O';
-
-/// Schowing changed board
-for (int i = 0; i < 15; i++)
-{
-	for (int j = 0; j < 15; j++)
-	{
-		if (board[i][j] == 'X')
-			cout << "\033[32m" << board[i][j] << " ";
-		else if (board[i][j] == 'O')
-			cout << "\033[31m" << board[i][j] << " ";
-		else
-		{
-			cout << "\033[0m" << board[i][j] << " ";
-		}
-
-	}
-	cout << endl;
-}
-
-
-
-//exit(0);
-}
-*/
