@@ -16,11 +16,11 @@ using namespace std;
 //18. ask on group if it is easy to reprogram it to GPU
 //19. make bigger data prevoiusly calculated moves
 
-int GetAmountOf_4_OR_3_InRow(vector<vector<char>>& board, char& maximaler, char& minimaler);
+int ScoreBoard(vector<vector<char>>& board, char& maximaler, char& minimaler);
 int EvalBoard(vector<vector<char>>& board, char& maximaler, char& minimaler);
 void GetAllMoves(vector<vector<char>>& board, vector<vector<bool>>& moves);
 char GetWinner(vector<vector<char>>& board);
-int FindBestMove(vector<vector<char>> board, char turn, int depth, int& alpha, int& beta, char& maximaler, char& minimaler, int move_x, int move_y);
+int FindBestMove(vector<vector<char>> board, char turn, int depth, int alpha, int beta, char& maximaler, char& minimaler, int move_x, int move_y);
 
 map<vector<vector<char>>, int> ALLBOARDS;
 
@@ -42,7 +42,7 @@ MinMax::MinMax(char AI_Char)
 		Opponent_character = 'X';
 }
 
-int FindBestMove(vector<vector<char>> board, char turn, int depth, int& alpha, int& beta, char& maximaler, char& minimaler,
+int FindBestMove(vector<vector<char>> board, char turn, int depth, int alpha, int beta, char& maximaler, char& minimaler,
 	int move_x, int move_y)
 {
 	if (depth == 0)
@@ -53,7 +53,7 @@ int FindBestMove(vector<vector<char>> board, char turn, int depth, int& alpha, i
 	char winner = GetWinner(board);
 	if (winner != '0')
 	{
-		return (winner = maximaler) ? INT_MAX : INT_MIN;
+		return (winner == maximaler) ? INT_MAX : INT_MIN;
 	}
 
 	board[move_x][move_y] = (turn == minimaler) ? maximaler : minimaler;
@@ -71,22 +71,23 @@ int FindBestMove(vector<vector<char>> board, char turn, int depth, int& alpha, i
 
 	int eval;
 
-	int seven_minus_i;
-	int seven_plus_i;
-	int seven_minus_j;
-	int seven_plus_j;
+	short seven_minus_i;
+	short seven_plus_i;
+	short seven_minus_j;
+	short seven_plus_j;
 
 	// Finding for maximaler
 	if (turn == maximaler)
 	{
-		for (int i = 0; i <= 7; i++)
+		for (short i = 0; i <= 7; i++)
 		{
 			seven_minus_i = 7 - i;
 			seven_plus_i = 7 + i;
-			for (int j = 0; j <= 7; j++)
+			for (short j = 0; j <= 7; j++)
 			{
 				seven_minus_j = 7 - j;
 				seven_plus_j = 7 + j;
+
 				if (all_moves[seven_minus_j][seven_minus_i])
 				{
 					eval = FindBestMove(board, minimaler, depth - 1, alpha, beta, maximaler, minimaler, seven_minus_j, seven_minus_i);
@@ -131,25 +132,24 @@ int FindBestMove(vector<vector<char>> board, char turn, int depth, int& alpha, i
 						}
 					}
 				}
-
-
 			}
 		}
 	}
 	// Finding for minimaler
 	else
 	{
-		for (int i = 0; i <= 7; i++)
+		for (short i = 0; i <= 7; i++)
 		{
 			seven_minus_i = 7 - i;
 			seven_plus_i = 7 + i;
-			for (int j = 0; j <= 7; j++)
+			for (short j = 0; j <= 7; j++)
 			{
 				seven_minus_j = 7 - j;
 				seven_plus_j = 7 + j;
+
 				if (all_moves[seven_minus_j][seven_minus_i])
 				{
-					eval = FindBestMove(board, minimaler, depth - 1, alpha, beta, maximaler, minimaler, seven_minus_j, seven_minus_i);
+					eval = FindBestMove(board, maximaler, depth - 1, alpha, beta, maximaler, minimaler, seven_minus_j, seven_minus_i);
 					bestscore = min(eval, bestscore);
 					beta = min(eval, beta);
 					if (beta <= alpha)
@@ -157,11 +157,12 @@ int FindBestMove(vector<vector<char>> board, char turn, int depth, int& alpha, i
 						ALLBOARDS[board] = bestscore;
 						return bestscore;
 					}
-				}if (j != 0 && i != 0)
+				}
+				if (j != 0 && i != 0)
 				{
 					if (all_moves[seven_plus_j][seven_minus_i])
 					{
-						eval = FindBestMove(board, minimaler, depth - 1, alpha, beta, maximaler, minimaler, seven_plus_j, seven_minus_i);
+						eval = FindBestMove(board, maximaler, depth - 1, alpha, beta, maximaler, minimaler, seven_plus_j, seven_minus_i);
 						bestscore = min(eval, bestscore);
 						beta = min(eval, beta);
 						if (beta <= alpha)
@@ -171,7 +172,7 @@ int FindBestMove(vector<vector<char>> board, char turn, int depth, int& alpha, i
 						}
 					}if (all_moves[seven_plus_j][seven_plus_i])
 					{
-						eval = FindBestMove(board, minimaler, depth - 1, alpha, beta, maximaler, minimaler, seven_plus_j, seven_plus_i);
+						eval = FindBestMove(board, maximaler, depth - 1, alpha, beta, maximaler, minimaler, seven_plus_j, seven_plus_i);
 						bestscore = min(eval, bestscore);
 						beta = min(eval, beta);
 						if (beta <= alpha)
@@ -181,7 +182,7 @@ int FindBestMove(vector<vector<char>> board, char turn, int depth, int& alpha, i
 						}
 					} if (all_moves[seven_minus_j][seven_plus_i])
 					{
-						eval = FindBestMove(board, minimaler, depth - 1, alpha, beta, maximaler, minimaler, seven_minus_j, seven_plus_i);
+						eval = FindBestMove(board, maximaler, depth - 1, alpha, beta, maximaler, minimaler, seven_minus_j, seven_plus_i);
 						bestscore = min(eval, bestscore);
 						beta = min(eval, beta);
 						if (beta <= alpha)
@@ -194,25 +195,19 @@ int FindBestMove(vector<vector<char>> board, char turn, int depth, int& alpha, i
 			}
 		}
 	}
+
 	ALLBOARDS[board] = bestscore;
 	return bestscore;
 }
 
-void FindBestScoreInBoardAndReplaceBestIfBetter(bool if_move_possible, int& BestInd, int& BestScore, int& score, vector<vector<char>> board, char turn, int depth, int& alpha, int& beta,
+void FindBestScoreInBoardAndReplaceBestIfBetter(int& BestInd, int& BestScore, int& score, vector<vector<char>>& board, char turn, int depth, int& alpha, int& beta,
 	char maximaler, char minimaler, int move_x, int move_y)
 {
-
-	if (if_move_possible)
+	score = FindBestMove(board, turn, depth, alpha, beta, maximaler, minimaler, move_x, move_y);
+	if (score > BestScore)
 	{
-		score = FindBestMove(board, turn, depth, alpha, beta, maximaler, minimaler, move_x, move_y);
-		if (score > BestScore)
-		{
-			BestScore = score;
-			BestInd = (15 * move_x) + move_y;
-
-
-		}
-
+		BestScore = score;
+		BestInd = (15 * move_x) + move_y;
 	}
 }
 
@@ -262,23 +257,39 @@ int GetBestMove(string& str_board, char turn, int depth, char maximaler, char mi
 		{
 			seven_minus_j = 7 - j;
 			seven_plus_j = 7 + j;
-			if (seven_minus_j <= right_x_subtstractor && seven_minus_j >= left_x_subtstractor && seven_minus_i <= right_y_subtstractor && seven_minus_i >= left_y_subtstractor)
-				threads.push_back(thread(FindBestScoreInBoardAndReplaceBestIfBetter, possible_moves[seven_minus_j][seven_minus_i], ref(BestInd), ref(bestScore), ref(score1), board, AI->Opponent_character, depth - 1, ref(alpha), ref(beta), maximaler, minimaler, seven_minus_j, seven_minus_i));
+			if (possible_moves[seven_minus_j][seven_minus_i] && seven_minus_j <= right_x_subtstractor && seven_minus_j >= left_x_subtstractor && seven_minus_i <= right_y_subtstractor && seven_minus_i >= left_y_subtstractor)
+			{
+				threads.push_back(thread(FindBestScoreInBoardAndReplaceBestIfBetter, ref(BestInd), ref(bestScore), ref(score1), ref(board), AI->Opponent_character, depth - 1, ref(alpha), ref(beta), maximaler, minimaler, seven_minus_j, seven_minus_i));
+				//FindBestScoreInBoardAndReplaceBestIfBetter( possible_moves[seven_minus_j][seven_minus_i], BestInd, bestScore, score1, board, AI->Opponent_character, depth - 1, alpha, beta, maximaler, minimaler, seven_minus_j, seven_minus_i);
+			}
 
-			if (seven_plus_j <= right_x_subtstractor && seven_plus_j >= left_x_subtstractor && seven_plus_i <= right_y_subtstractor && seven_plus_i >= left_y_subtstractor)
-				threads.push_back(thread(FindBestScoreInBoardAndReplaceBestIfBetter, possible_moves[seven_plus_j][seven_plus_i], ref(BestInd), ref(bestScore), ref(score2), board, AI->Opponent_character, depth - 1, ref(alpha), ref(beta), maximaler, minimaler, seven_plus_j, seven_plus_i));
+			if (possible_moves[seven_plus_j][seven_plus_i] && seven_plus_j <= right_x_subtstractor && seven_plus_j >= left_x_subtstractor && seven_plus_i <= right_y_subtstractor && seven_plus_i >= left_y_subtstractor)
+			{
+				threads.push_back(thread(FindBestScoreInBoardAndReplaceBestIfBetter, ref(BestInd), ref(bestScore), ref(score2), ref(board), AI->Opponent_character, depth - 1, ref(alpha), ref(beta), maximaler, minimaler, seven_plus_j, seven_plus_i));
+				//FindBestScoreInBoardAndReplaceBestIfBetter( possible_moves[seven_plus_j][seven_plus_i], (BestInd), (bestScore), (score2), board, AI->Opponent_character, depth - 1, (alpha), (beta), maximaler, minimaler, seven_plus_j, seven_plus_i);
+			}
 
-			if (seven_plus_j <= right_x_subtstractor && seven_plus_j >= left_x_subtstractor && seven_minus_i <= right_y_subtstractor && seven_minus_i >= left_y_subtstractor)
-				threads.push_back(thread(FindBestScoreInBoardAndReplaceBestIfBetter, possible_moves[seven_plus_j][seven_minus_i], ref(BestInd), ref(bestScore), ref(score3), board, AI->Opponent_character, depth - 1, ref(alpha), ref(beta), maximaler, minimaler, seven_plus_j, seven_minus_i));
+			if (possible_moves[seven_plus_j][seven_minus_i] && seven_plus_j <= right_x_subtstractor && seven_plus_j >= left_x_subtstractor && seven_minus_i <= right_y_subtstractor && seven_minus_i >= left_y_subtstractor)
+			{
+				threads.push_back(thread(FindBestScoreInBoardAndReplaceBestIfBetter, ref(BestInd), ref(bestScore), ref(score3), ref(board), AI->Opponent_character, depth - 1, ref(alpha), ref(beta), maximaler, minimaler, seven_plus_j, seven_minus_i));
+				//FindBestScoreInBoardAndReplaceBestIfBetter( possible_moves[seven_plus_j][seven_minus_i], (BestInd), (bestScore), (score3), board, AI->Opponent_character, depth - 1, (alpha), (beta), maximaler, minimaler, seven_plus_j, seven_minus_i);
+			}
 
-			if (seven_minus_j <= right_x_subtstractor && seven_minus_j >= left_x_subtstractor && seven_plus_i <= right_y_subtstractor && seven_plus_i >= left_y_subtstractor)
-				threads.push_back(thread(FindBestScoreInBoardAndReplaceBestIfBetter, possible_moves[seven_minus_j][seven_plus_i], ref(BestInd), ref(bestScore), ref(score4), board, AI->Opponent_character, depth - 1, ref(alpha), ref(beta), maximaler, minimaler, seven_minus_j, seven_plus_i));
-
+			if (possible_moves[seven_minus_j][seven_plus_i] && seven_minus_j <= right_x_subtstractor && seven_minus_j >= left_x_subtstractor && seven_plus_i <= right_y_subtstractor && seven_plus_i >= left_y_subtstractor)
+			{
+				threads.push_back(thread(FindBestScoreInBoardAndReplaceBestIfBetter, ref(BestInd), ref(bestScore), ref(score4), ref(board), AI->Opponent_character, depth - 1, ref(alpha), ref(beta), maximaler, minimaler, seven_minus_j, seven_plus_i));
+				//FindBestScoreInBoardAndReplaceBestIfBetter( possible_moves[seven_minus_j][seven_plus_i], (BestInd), (bestScore), (score4), board, AI->Opponent_character, depth - 1, (alpha), (beta), maximaler, minimaler, seven_minus_j, seven_plus_i);
+			}
 		}
 	}
 
-	for (int i = 0; i < threads.size() && bestScore != INT_MAX; i++)
+	for (int i = 0; i < threads.size(); i++)
 	{
+		if (i % 4 == 0)
+		{
+			//system("cls");
+			cout << (float)i / threads.size() << endl;
+		}
 		threads[i].join();
 	}
 
@@ -300,8 +311,8 @@ char GetWinner(vector<vector<char>>& board)
 			{
 				// Checking column
 				if (i >= 4 && board[i][j] == board[i_minus_sth[0]][j] && board[i_minus_sth[0]][j] == board[i_minus_sth[1]][j]
-					&& board[i_minus_sth[1]][j] == board[i_minus_sth[2]][j] && board[i_minus_sth[2]][j] == board[i_minus_sth[3]][j]
-					&& ((i == 14 || board[i + 1][j] != board[i][j])))
+					&& board[i_minus_sth[1]][j] == board[i_minus_sth[2]][j] && board[i_minus_sth[2]][j] == board[i_minus_sth[3]][j])
+					//&& ((i == 14 || board[i + 1][j] != board[i][j])))
 				{
 					if (i > 4 && ((i == 14 || board[i + 1][j] != board[i][j]) && board[i][j] != board[i - 5][j]))
 					{
@@ -312,61 +323,60 @@ char GetWinner(vector<vector<char>>& board)
 						return board[i][j];
 					}
 				}
-				//checking row
-				if (j >= 4 && board[i][j] == board[i][j - 1] && board[i][j - 1] == board[i][j - 2]
-					&& board[i][j - 2] == board[i][j - 3] && board[i][j - 3] == board[i][j - 4]
-					&& (j == 14 || board[i][j + 1] != board[i][j]) && board[i][j - 5] != board[i][j])
+
+				if (j >= 4)
 				{
-					if (j > 4 && (j == 14 || board[i][j + 1] != board[i][j]) && board[i][j - 5] != board[i][j])
+					//checking row
+					if (board[i][j] == board[i][j - 1] && board[i][j - 1] == board[i][j - 2]
+						&& board[i][j - 2] == board[i][j - 3] && board[i][j - 3] == board[i][j - 4])
+						//&& (j == 14 || board[i][j + 1] != board[i][j]))
 					{
-						return board[i][j];
+						if (j > 4 && (j == 14 || board[i][j + 1] != board[i][j]) && board[i][j - 5] != board[i][j])
+						{
+							return board[i][j];
+						}
+						if (j == 4 && board[i][5] != board[i][j])
+						{
+							return board[i][j];
+						}
 					}
-					if (j == 4 && board[i][j + 1] != board[i][j])
+					//checking diagnals from upper left to bottom right
+					if (i >= 4 && board[i][j] == board[i_minus_sth[0]][j - 1] && board[i_minus_sth[0]][j - 1] == board[i_minus_sth[1]][j - 2]
+						&& board[i_minus_sth[1]][j - 2] == board[i_minus_sth[2]][j - 3] && board[i_minus_sth[2]][j - 3] == board[i_minus_sth[3]][j - 4])
+						//&& ((i == 14 || j == 14) || board[i][j] != board[i + 1][j + 1]))
 					{
-						return board[i][j];
+						if (i > 4 && j > 4 && ((i == 14 || j == 14) || board[i][j] != board[i + 1][j + 1]) && board[i][j] != board[i - 5][j - 5])
+						{
+							return board[i][j];
+						}
+						if (i == 4 && j == 4 && board[i][j] != board[i + 1][j + 1])
+						{
+							return board[i][j];
+						}
+					}
+					//checking diagnals from upper right to bottom left
+					if (i <= 10 && board[i][j] == board[i + 1][j - 1] && board[i + 1][j - 1] == board[i + 2][j - 2]
+						&& board[i + 2][j - 2] == board[i + 3][j - 3] && board[i + 3][j - 3] == board[i + 4][j - 4])
+						//&& ((i == 0 || j == 14) || board[i][j] != board[i_minus_sth[0]][j + 1]))
+					{
+						if (i < 10 && j > 4 && ((i == 0 || j == 14) || board[i][j] != board[i - 1][j + 1]) && board[i][j] != board[i + 5][j - 5])
+						{
+							return board[i][j];
+						}
+						if (i == 10 && j == 4 && board[i][j] != board[9][5])
+						{
+							return board[i][j];
+						}
 					}
 				}
-				//checking diagnals from upper left to bottom right
-				if (i >= 4 && j >= 4 && board[i][j] == board[i_minus_sth[0]][j - 1] && board[i_minus_sth[0]][j - 1] == board[i_minus_sth[1]][j - 2]
-					&& board[i_minus_sth[1]][j - 2] == board[i_minus_sth[2]][j - 3] && board[i_minus_sth[2]][j - 3] == board[i_minus_sth[3]][j - 4]
-					&& ((i == 14 && j == 14) || board[i][j] != board[i + 1][j + 1]) && board[i][j] != board[i - 5][j - 5])
-				{
-					if (i > 4 && j > 4 && ((i == 14 && j == 14) || board[i][j] != board[i + 1][j + 1]) && board[i][j] != board[i - 5][j - 5])
-					{
-						return board[i][j];
-					}
-					if (i == 4 && j == 4 && board[i][j] != board[i + 1][j + 1])
-					{
-						return board[i][j];
-					}
-				}
-				//checking diagnals from upper right to bottom left
-				if (i <= 10 && j >= 4 && board[i][j] == board[i + 1][j - 1] && board[i + 1][j - 1] == board[i + 2][j - 2]
-					&& board[i + 2][j - 2] == board[i + 3][j - 3] && board[i + 3][j - 3] == board[i + 4][j - 4]
-					&& ((i == 0 && j == 14) || board[i][j] != board[i - 1][j + 1]) && board[i][j] != board[i + 5][j - 5])
-				{
-					if (i < 10 && j > 4 && ((i == 0 && j == 14) || board[i][j] != board[i - 1][j + 1]) && board[i][j] != board[i + 5][j - 5])
-					{
-
-						return board[i][j];
-					}
-					if (i == 10 && j == 4 && board[i][j] != board[i - 1][j + 1])
-					{
-						return board[i][j];
-					}
-				}
-
-
 			}
 		}
 	}
-
 	return '0';
 }
 //return 15x15 board filled with bool. If field is true then its valid move
 void GetAllMoves(vector<vector<char>>& board, vector<vector<bool>>& moves)
 {
-	//vector<vector<bool>> moves;
 	for (int i = 0; i <= 14; i++)
 	{
 		vector<bool> empty_vec;
@@ -383,483 +393,183 @@ void GetAllMoves(vector<vector<char>>& board, vector<vector<bool>>& moves)
 				moves[i].push_back(false);
 		}
 	}
-
 }
 
 //Evalueate the board
 int EvalBoard(vector<vector<char>>& board, char& maximaler, char& minimaler)
 {
-	switch (GetWinner(board))
-	{
-	case 'X':
-		return INT_MAX;
-	case 'O':
-		return INT_MIN;
-	default:
-		return GetAmountOf_4_OR_3_InRow(board, maximaler, minimaler);
-	}
+	return ScoreBoard(board, maximaler, minimaler);
 }
 
-int GetAmountOf_4_OR_3_InRow(vector<vector<char>>& board, char& maximaler, char& minimaler) //AI +, player -
+int ScoreBoard(vector<vector<char>>& board, char& maximaler, char& minimaler) //AI +, player -
 {
-	int plus_score = 0;
-	int minus_score = 0;
-	int amount_of_maximaler_temp;
 	int i_minus_sth[4];
-	int j_minus_sth[4];
-	for (int i = 0; i <= 14 - 0; i++)
+	int score = 0;
+	for (int i = 0; i <= 14; i++)
 	{
 		i_minus_sth[3] = i - 4;
 		i_minus_sth[2] = i - 3;
 		i_minus_sth[1] = i - 2;
 		i_minus_sth[0] = i - 1;
-		for (int j = 0; j <= 14 - 0; j++)
+		for (int j = 0; j <= 14; j++)
 		{
-			amount_of_maximaler_temp = 1;
-			if (board[i][j] == maximaler)
+			if (board[i][j] != '0')
 			{
-				j_minus_sth[3] = j - 4;
-				j_minus_sth[2] = j - 3;
-				j_minus_sth[1] = j - 2;
-				j_minus_sth[0] = j - 1;
-				// Checking column i think
+				// Checking column
 				if (i >= 4)
 				{
-					if (!(board[i_minus_sth[2]][j] == minimaler
-						|| board[i_minus_sth[1]][j] == minimaler || board[i_minus_sth[0]][j] == minimaler))
+					if (board[i][j] == board[i_minus_sth[0]][j] && board[i_minus_sth[0]][j] == board[i_minus_sth[1]][j])
 					{
-						if (board[i][j] == board[i_minus_sth[0]][j])
+						//0XXXX or XXXX0 or win/lose
+						if (board[i_minus_sth[1]][j] == board[i_minus_sth[2]][j])
 						{
-							amount_of_maximaler_temp++;
+							if (board[i_minus_sth[3]][j] == '0' && ((i != 14 && board[i + 1][j] == '0')))
+								return (board[i][j] == maximaler) ? INT_MAX / 2 : INT_MIN / 2;
+							if (board[i_minus_sth[3]][j] == '0' || (i != 14 && board[i + 1][j] == '0'))
+								score += (board[i][j] == maximaler) ? 2 : -2;
+							if (board[i_minus_sth[3]][j] == board[i][j] || (i != 14 && board[i + 1][j] == board[i][j]))
+								return (board[i][j] == maximaler) ? INT_MAX : INT_MIN;
 						}
-						if (board[i][j] == board[i_minus_sth[1]][j])
+						//check column X0XXX
+						else if ( board[i_minus_sth[2]][j] == '0' && board[i_minus_sth[3]][j] == board[i][j])
 						{
-							amount_of_maximaler_temp++;
-						}
-						if (board[i][j] == board[i_minus_sth[2]][j])
-						{
-							amount_of_maximaler_temp++;
-						}
-						if (board[i][j] == board[i_minus_sth[3]][j])
-						{
-							amount_of_maximaler_temp++;
-						};
-
-						if (amount_of_maximaler_temp == 4)
-						{
-							plus_score += 2;
-						}
-
-					}
-					amount_of_maximaler_temp = 1;
-					if (!(board[i_minus_sth[1]][j] == minimaler || board[i_minus_sth[0]][j] == minimaler))
-					{
-						if (board[i][j] == board[i_minus_sth[0]][j])
-						{
-							amount_of_maximaler_temp++;
-						}
-						if (board[i][j] == board[i_minus_sth[1]][j])
-						{
-							amount_of_maximaler_temp++;
-						}
-						if (board[i][j] == board[i_minus_sth[2]][j])
-						{
-							amount_of_maximaler_temp++;
-						}
-
-						if (amount_of_maximaler_temp == 3)
-						{
-							plus_score += 1;
+							score += (board[i][j] == maximaler) ? 2 : -2;
 						}
 					}
-					amount_of_maximaler_temp = 1;
-					//checking diagnals from bottom left to upper right
-					if (j >= 4)
+					else if (board[i_minus_sth[2]][j] == board[i][j] && board[i_minus_sth[3]][j] == board[i][j])
 					{
-						if (!(board[i_minus_sth[2]][j_minus_sth[2]] == minimaler
-							|| board[i_minus_sth[1]][j_minus_sth[1]] == minimaler || board[i_minus_sth[0]][j_minus_sth[0]] == minimaler))
+						//check column XX0XX
+						if (board[i][j] == board[i_minus_sth[0]][j] && board[i_minus_sth[1]][j] == '0')
 						{
-							if (board[i][j] == board[i_minus_sth[0]][j_minus_sth[0]])
-							{
-								amount_of_maximaler_temp++;
-							}
-							if (board[i][j] == board[i_minus_sth[1]][j_minus_sth[1]])
-							{
-								amount_of_maximaler_temp++;
-							}
-							if (board[i][j] == board[i_minus_sth[2]][j_minus_sth[2]])
-							{
-								amount_of_maximaler_temp++;
-							}
-							if (board[i][j] == board[i_minus_sth[3]][j_minus_sth[3]])
-							{
-								amount_of_maximaler_temp++;
-							};
-
-							if (amount_of_maximaler_temp == 4)
-							{
-								plus_score += 2;
-							}
+							score += (board[i][j] == maximaler) ? 2 : -2;
 						}
-						amount_of_maximaler_temp = 1;
-						if (!(board[i_minus_sth[1]][j_minus_sth[1]] == minimaler || board[i_minus_sth[0]][j_minus_sth[0]] == minimaler))
+						//check column XXX0X
+						else if (board[i][j] == board[i_minus_sth[1]][j] && board[i_minus_sth[0]][j] == '0')
 						{
-							if (board[i][j] == board[i_minus_sth[0]][j_minus_sth[0]])
-							{
-								amount_of_maximaler_temp++;
-							}
-							if (board[i][j] == board[i_minus_sth[1]][j_minus_sth[1]])
-							{
-								amount_of_maximaler_temp++;
-							}
-							if (board[i][j] == board[i_minus_sth[2]][j_minus_sth[2]])
-							{
-								amount_of_maximaler_temp++;
-							}
-
-							if (amount_of_maximaler_temp == 3)
-							{
-								plus_score += 1;
-							}
-						}
-					}
-					//checking diagnals from bottom left to upper right     
-					if (j <= 10)
-					{
-						if (!(board[i_minus_sth[2]][j + 3] == minimaler
-							|| board[i_minus_sth[1]][j + 2] == minimaler || board[i_minus_sth[0]][j + 1] == minimaler))
-						{
-							if (board[i][j] == board[i_minus_sth[0]][j + 1])
-							{
-								amount_of_maximaler_temp++;
-							}
-							if (board[i][j] == board[i_minus_sth[1]][j + 2])
-							{
-								amount_of_maximaler_temp++;
-							}
-							if (board[i][j] == board[i_minus_sth[2]][j + 3])
-							{
-								amount_of_maximaler_temp++;
-							}
-							if (board[i][j] == board[i_minus_sth[3]][j + 4])
-							{
-								amount_of_maximaler_temp++;
-							};
-
-							if (amount_of_maximaler_temp == 4)
-							{
-								plus_score += 2;
-							}
-
-						}
-						amount_of_maximaler_temp = 1;
-						if (!(board[i_minus_sth[1]][j + 2] == minimaler || board[i_minus_sth[0]][j + 1] == minimaler))
-						{
-							if (board[i][j] == board[i_minus_sth[0]][j + 1])
-							{
-								amount_of_maximaler_temp++;
-							}
-							if (board[i][j] == board[i_minus_sth[1]][j + 2])
-							{
-								amount_of_maximaler_temp++;
-							}
-							if (board[i][j] == board[i_minus_sth[2]][j + 3])
-							{
-								amount_of_maximaler_temp++;
-							}
-
-							if (amount_of_maximaler_temp == 3)
-							{
-								plus_score += 1;
-							}
-						}
-					}
-				}
-				amount_of_maximaler_temp = 1;
-				if (j >= 4)
-				{
-					//checking row i think
-					if (!(board[i][j - 3] == minimaler
-						|| board[i][j_minus_sth[1]] == minimaler || board[i][j_minus_sth[0]] == minimaler))
-					{
-						if (board[i][j] == board[i][j_minus_sth[0]])
-						{
-							amount_of_maximaler_temp++;
-						}
-						if (board[i][j] == board[i][j_minus_sth[1]])
-						{
-							amount_of_maximaler_temp++;
-						}
-						if (board[i][j] == board[i][j_minus_sth[2]])
-						{
-							amount_of_maximaler_temp++;
-						}
-						if (board[i][j] == board[i][j_minus_sth[3]])
-						{
-							amount_of_maximaler_temp++;
-						}
-
-						if (amount_of_maximaler_temp == 4)
-						{
-							plus_score += 2;
-						}
-
-					}
-					amount_of_maximaler_temp = 1;
-					if (!(board[i][j_minus_sth[1]] == minimaler || board[i][j_minus_sth[0]] == minimaler))
-					{
-						if (board[i][j] == board[i][j_minus_sth[0]])
-						{
-							amount_of_maximaler_temp++;
-						}
-						if (board[i][j] == board[i][j_minus_sth[1]])
-						{
-							amount_of_maximaler_temp++;
-						}
-						if (board[i][j] == board[i][j_minus_sth[2]])
-						{
-							amount_of_maximaler_temp++;
-						}
-
-						if (amount_of_maximaler_temp == 3)
-						{
-							plus_score += 1;
+							score += (board[i][j] == maximaler) ? 2 : -2;
 						}
 					}
 				}
 
-				if (plus_score >= 6 && minus_score >= -1)
-					return (int)INT_MAX / 2;
-			}
-			else if (board[i][j] == minimaler)
-			{
-				j_minus_sth[3] = j - 4;
-				j_minus_sth[2] = j - 3;
-				j_minus_sth[1] = j - 2;
-				j_minus_sth[0] = j - 1;
-				if (i >= 4)
-				{
-					// Checking column
-					if (!(board[i_minus_sth[2]][j] == maximaler
-						|| board[i_minus_sth[1]][j] == maximaler || board[i_minus_sth[0]][j] == maximaler))
-					{
-						if (board[i][j] == board[i_minus_sth[0]][j])
-						{
-							amount_of_maximaler_temp++;
-						}
-						if (board[i][j] == board[i_minus_sth[1]][j])
-						{
-							amount_of_maximaler_temp++;
-						}
-						if (board[i][j] == board[i_minus_sth[2]][j])
-						{
-							amount_of_maximaler_temp++;
-						}
-						if (board[i][j] == board[i_minus_sth[3]][j])
-						{
-							amount_of_maximaler_temp++;
-						};
-
-						if (amount_of_maximaler_temp == 4)
-						{
-							minus_score -= 2;
-						}
-					}
-					amount_of_maximaler_temp = 1;
-					if (!(board[i_minus_sth[1]][j] == maximaler || board[i_minus_sth[0]][j] == maximaler))
-					{
-						if (board[i][j] == board[i_minus_sth[0]][j])
-						{
-							amount_of_maximaler_temp++;
-						}
-						if (board[i][j] == board[i_minus_sth[1]][j])
-						{
-							amount_of_maximaler_temp++;
-						}
-						if (board[i][j] == board[i_minus_sth[2]][j])
-						{
-							amount_of_maximaler_temp++;
-						}
-
-						if (amount_of_maximaler_temp == 3)
-						{
-							minus_score -= 1;
-						}
-					}
-
-					amount_of_maximaler_temp = 1;
-					if (j <= 10)
-					{
-						//checking diagnals from bottom left to upper right     
-						if (!(board[i_minus_sth[2]][j + 3] == maximaler
-							|| board[i_minus_sth[1]][j + 2] == maximaler || board[i_minus_sth[0]][j + 1] == maximaler))
-						{
-							if (board[i][j] == board[i_minus_sth[0]][j + 1])
-							{
-								amount_of_maximaler_temp++;
-							}
-							if (board[i][j] == board[i_minus_sth[1]][j + 2])
-							{
-								amount_of_maximaler_temp++;
-							}
-							if (board[i][j] == board[i_minus_sth[2]][j + 3])
-							{
-								amount_of_maximaler_temp++;
-							}
-							if (board[i][j] == board[i_minus_sth[3]][j + 4])
-							{
-								amount_of_maximaler_temp++;
-							};
-
-							if (amount_of_maximaler_temp == 4)
-							{
-								minus_score -= 2;
-							}
-
-						}
-						amount_of_maximaler_temp = 1;
-						if (!(board[i_minus_sth[1]][j + 2] == maximaler || board[i_minus_sth[0]][j + 1] == maximaler))
-						{
-							if (board[i][j] == board[i_minus_sth[0]][j + 1])
-							{
-								amount_of_maximaler_temp++;
-							}
-							if (board[i][j] == board[i_minus_sth[1]][j + 2])
-							{
-								amount_of_maximaler_temp++;
-							}
-							if (board[i][j] == board[i_minus_sth[2]][j + 3])
-							{
-								amount_of_maximaler_temp++;
-							}
-
-							if (amount_of_maximaler_temp == 3)
-							{
-								minus_score -= 1;
-							}
-						}
-					}
-
-					if (j >= 4)
-					{
-						//checking diagnals from bottom left to upper right
-						if (!(board[i_minus_sth[2]][j_minus_sth[2]] == maximaler
-							|| board[i_minus_sth[1]][j_minus_sth[1]] == maximaler || board[i_minus_sth[0]][j_minus_sth[0]] == maximaler))
-						{
-							if (board[i][j] == board[i_minus_sth[0]][j_minus_sth[0]])
-							{
-								amount_of_maximaler_temp++;
-							}
-							if (board[i][j] == board[i_minus_sth[1]][j_minus_sth[1]])
-							{
-								amount_of_maximaler_temp++;
-							}
-							if (board[i][j] == board[i_minus_sth[2]][j_minus_sth[2]])
-							{
-								amount_of_maximaler_temp++;
-							}
-							if (board[i][j] == board[i_minus_sth[3]][j_minus_sth[3]])
-							{
-								amount_of_maximaler_temp++;
-							};
-
-							if (amount_of_maximaler_temp == 4)
-							{
-								minus_score -= 2;
-							}
-
-						}
-						amount_of_maximaler_temp = 1;
-						if (!(board[i_minus_sth[1]][j_minus_sth[1]] == maximaler || board[i_minus_sth[0]][j_minus_sth[0]] == maximaler))
-						{
-							if (board[i][j] == board[i_minus_sth[0]][j_minus_sth[0]])
-							{
-								amount_of_maximaler_temp++;
-							}
-							if (board[i][j] == board[i_minus_sth[1]][j_minus_sth[1]])
-							{
-								amount_of_maximaler_temp++;
-							}
-							if (board[i][j] == board[i_minus_sth[2]][j_minus_sth[2]])
-							{
-								amount_of_maximaler_temp++;
-							}
-
-
-							if (amount_of_maximaler_temp == 3)
-							{
-								minus_score -= 1;
-							}
-						}
-
-					}
-
-
-				}
-				amount_of_maximaler_temp = 1;
 				if (j >= 4)
 				{
 					//checking row
-					if (!(board[i][j_minus_sth[2]] == maximaler
-						|| board[i][j_minus_sth[1]] == maximaler || board[i][j_minus_sth[0]] == maximaler))
+					if (board[i][j] == board[i][j - 1] && board[i][j - 1] == board[i][j - 2])
 					{
-						if (board[i][j] == board[i][j_minus_sth[0]])
+						//0XXXX or XXXX0 or win/lose
+						if (board[i][j - 2] == board[i][j - 3])
 						{
-							amount_of_maximaler_temp++;
+							if (board[i][j - 4] == '0' && (j != 14 && board[i][j + 1] == '0'))
+								return (board[i][j] == maximaler) ? INT_MAX / 2 : INT_MIN / 2;
+							if (board[i][j - 4] == board[i][j] || (j != 14 && board[i][j + 1] == board[i][j]))
+								return (board[i][j] == maximaler) ? INT_MAX : INT_MIN;
+							if (board[i][j - 4] == '0' || (j != 14 && board[i][j + 1] == '0'))
+								score += (board[i][j] == maximaler) ? 2 : -2;
 						}
-						if (board[i][j] == board[i][j_minus_sth[1]])
+						//check column X0XXX
+						else if (board[i][j - 3] == '0' && board[i][j - 4] == board[i][j])
 						{
-							amount_of_maximaler_temp++;
+							score += (board[i][j] == maximaler) ? 2 : -2;
 						}
-						if (board[i][j] == board[i][j_minus_sth[2]])
+					}
+					else if (board[i][j - 3] == board[i][j] && board[i][j - 4] == board[i][j])
+					{
+						//check column XX0XX
+						if (board[i][j] == board[i][j - 1] && board[i][j - 2] == '0')
 						{
-							amount_of_maximaler_temp++;
+							score += (board[i][j] == maximaler) ? 2 : -2;
 						}
-						if (board[i][j] == board[i][j_minus_sth[3]])
+						//check column XXX0X
+						else if (board[i][j] == board[i][j - 2] && board[i][j - 1] == '0')
 						{
-							amount_of_maximaler_temp++;
-						};
-
-						if (amount_of_maximaler_temp == 4)
-						{
-							minus_score -= 2;
+							score += (board[i][j] == maximaler) ? 2 : -2;
 						}
 
 					}
-					amount_of_maximaler_temp = 1;
-					if (!(board[i][j_minus_sth[1]] == maximaler || board[i][j_minus_sth[0]] == maximaler))
-					{
-						if (board[i][j] == board[i][j_minus_sth[0]])
-						{
-							amount_of_maximaler_temp++;
-						}
-						if (board[i][j] == board[i][j_minus_sth[1]])
-						{
-							amount_of_maximaler_temp++;
-						}
-						if (board[i][j] == board[i][j_minus_sth[2]])
-						{
-							amount_of_maximaler_temp++;
-						}
 
-						if (amount_of_maximaler_temp == 3)
+					//checking diagnals from upper left to bottom right
+					if (i >= 4)
+					{
+						if (board[i][j] == board[i_minus_sth[0]][j - 1] && board[i_minus_sth[0]][j - 1] == board[i_minus_sth[1]][j - 2])
 						{
-							minus_score -= 1;
+							//0XXXX or XXXX0 or win/lose
+							if (board[i_minus_sth[1]][j - 2] == board[i_minus_sth[2]][j - 3])
+							{
+								if (board[i_minus_sth[3]][j - 4] == '0' && ((i != 14 && j != 14) && board[i + 1][j + 1] == '0'))
+									return (board[i][j] == maximaler) ? INT_MAX/2 : INT_MIN/2;
+								if (board[i_minus_sth[3]][j - 4] == '0' || board[i + 1][j + 1] == '0')
+									score += (board[i][j] == maximaler) ? 2 : -2;
+								if (board[i_minus_sth[3]][j - 4] == board[i][j] || board[i + 1][j + 1] == board[i][j])
+									return (board[i][j] == maximaler) ? INT_MAX : INT_MIN;
+							}
+							//checking diagnals X0XXX
+							else if (board[i_minus_sth[2]][j - 3] == '0' && board[i_minus_sth[3]][j - 4] == board[i][j])
+							{
+								score += (board[i][j] == maximaler) ? 2 : -2;
+							}
+						}
+						if (board[i_minus_sth[2]][j - 3] == board[i][j] && board[i_minus_sth[3]][j - 4] == board[i][j])
+						{
+							//checking diagnals XX0XX
+							if (board[i][j] == board[i_minus_sth[0]][j - 1] && board[i_minus_sth[1]][j - 2] == '0')
+							{
+								score += (board[i][j] == maximaler) ? 2 : -2;
+							}
+							//checking diagnals XXX0X
+							else if (board[i][j] == board[i_minus_sth[1]][j - 2] && board[i_minus_sth[0]][j - 1] == '0')
+							{
+								score += (board[i][j] == maximaler) ? 2 : -2;
+							}
+						}
+					}
+
+					//checking diagnals from upper right to bottom left
+					if (i <= 10)
+					{
+						if (board[i][j] == board[i + 1][j - 1] && board[i + 1][j - 1] == board[i + 2][j - 2])
+						{
+							//0XXXX or XXXX0 or win/lose
+							if (board[i + 2][j - 2] == board[i + 3][j - 3])
+							{
+								if (board[i + 4][j - 4] == '0' && (i != 0 && j != 14 && board[i - 1][j + 1] == '0'))
+									return (board[i][j] == maximaler) ? INT_MAX / 2 : INT_MIN / 2;
+								if (board[i + 4][j - 4] == '0' || (i != 0 && j != 14 && board[i - 1][j + 1] == '0'))
+									score += (board[i][j] == maximaler) ? 2 : -2;
+								if (board[i + 4][j - 4] == board[i][j] || board[i - 1][j + 1] == board[i][j])
+									return (board[i][j] == maximaler) ? INT_MAX : INT_MIN;
+							}
+							//checking diagnals X0XXX
+							else if (board[i + 3][j - 3] == '0' && board[i + 4][j - 4] == board[i][j])
+							{
+								score += (board[i][j] == maximaler) ? 2 : -2;
+							}
+						}
+						else if (board[i + 3][j - 3] == board[i][j] && board[i + 4][j - 4] == board[i][j])
+						{
+							//checking diagnals XX0XX
+							if (board[i][j] == board[i + 1][j - 1] && board[i + 2][j - 2] == '0')
+							{
+								score += (board[i][j] == maximaler) ? 2 : -2;
+							}
+							//checking diagnals XX0XX
+							if (board[i][j] == board[i + 2][j - 2] && board[i + 1][j - 1] == '0')
+							{
+								score += (board[i][j] == maximaler) ? 2 : -2;
+							}
 						}
 					}
 				}
-				if (minus_score < -5) return INT_MIN;   //bc thats mean that opponent has a lot possibilities
-				amount_of_maximaler_temp = 1;
 			}
 		}
 	}
-	return plus_score + minus_score;
+	return score;
 }
 
 int main()
 {
 	bool making_data = false;
-	int depth = 1;
+	bool print_board = true;
+	int depth = 7;
 
 	int left_x_subtstractor = 0, right_x_subtstractor = 14, left_y_subtstractor = 0, right_y_subtstractor = 14;
 	string str_board;
@@ -872,56 +582,25 @@ int main()
 
 	for (int index = 0; index < indexes_range; index++)
 	{
-		cout << "INDEX: " << index << endl;
-		// loading data from board.txt
-		fstream board_file;
-		board_file.open("board.txt");
-		while (!board_file.eof())
+
+		if (making_data)
 		{
+			cout << "INDEX: " << index << endl;
+			str_board = "000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000";
+			str_board[112] = 'X';
+			while (str_board[index] != '0' && index <= 224)
+				index += 1;
+			str_board[index] = 'O';
+		}
+		else
+		{
+			fstream board_file;
+			board_file.open("board.txt", ios::in);
 			board_file >> str_board >> depth >> left_x_subtstractor >> right_x_subtstractor >> left_y_subtstractor >> right_y_subtstractor;
-		}
-		board_file.close();
-
-		if (making_data) str_board[index] = 'O';
-
-		// COnvertign str_board to vector board
-		vector<vector<char>> board;
-		for (int i = 0; i < str_board.length(); i++)
-		{
-			if (i % 15 == 0)
-			{
-				vector<char> empty_vec;
-				board.push_back(empty_vec);
-			}
-			if (str_board[i] == '0' || str_board[i] == 'O' || str_board[i] == 'X')
-			{
-				board[(int)i / 15].push_back(str_board[i]);
-			}
+			board_file.close();
 		}
 
-		/// Schowing not changed board
-		vector<vector<bool>> moves;
-		GetAllMoves(board, moves);
-		for (int i = 0; i < 15; i++)
-		{
-			for (int j = 0; j < 15; j++)
-			{
-				if (board[i][j] == 'X')
-					cout << "\033[32m" << board[i][j] << " ";
-				else if (board[i][j] == 'O')
-					cout << "\033[31m" << board[i][j] << " ";
-				else if (moves[i][j])
-					cout << "\033[33m" << board[i][j] << " ";
-				else if (j <= right_x_subtstractor && j >= left_x_subtstractor && i <= right_y_subtstractor && i >= left_y_subtstractor)
-					cout << "\033[34m" << board[i][j] << " ";
-				else
-					cout << "\033[0m" << board[i][j] << " ";
-
-			}
-			cout << "\033[0m" << endl;
-		}
-
-		// if board is empty, go middle, idk if that if work XDDD
+		// if board is empty, go middle
 		bool only_zeros = true;
 		for (int i = 0; i < str_board.length(); i++)
 		{
@@ -940,12 +619,76 @@ int main()
 			return 0;
 		}
 
+		vector<vector<char>> board;
+		/// TEMP CHECKING EVAL
+			/*
+			// COnvertign str_board to vector board
+			for (int i = 0; i < str_board.length(); i++)
+			{
+				if (i % 15 == 0)
+				{
+					vector<char> empty_vec;
+					board.push_back(empty_vec);
+				}
+				if (str_board[i] == '0' || str_board[i] == 'O' || str_board[i] == 'X')
+				{
+					board[(int)i / 15].push_back(str_board[i]);
+				}
+			}
+			char x = 'X';
+			char o = 'O';
+			cout << "board eval: " << EvalBoard(board, x, o) << endl;
+			*/
+
 		/// FINDING BEST MOVE
 		const clock_t begin_time = clock();
-		int move = GetBestMove(str_board, 'X', depth, 'X', 'O', left_x_subtstractor, right_x_subtstractor, left_y_subtstractor, right_y_subtstractor);
-		cout << "MOVE: " << move << endl;
+		int move = 0;
+		move = GetBestMove(str_board, 'X', depth, 'X', 'O', left_x_subtstractor, right_x_subtstractor, left_y_subtstractor, right_y_subtstractor);
+		cout << "MOVE: " << move % 15 << " " << (int)move / 15 << endl;
+		cout << "MOVE: " << move << " " << endl;
 		cout << "IT TOOK: " << float(clock() - begin_time) / CLOCKS_PER_SEC << endl;
 
+		str_board[move] = 'X';
+		//vector<vector<char>> board;
+		if (print_board)
+		{
+			board.clear();
+			// COnvertign str_board to vector board
+			for (int i = 0; i < str_board.length(); i++)
+			{
+				if (i % 15 == 0)
+				{
+					vector<char> empty_vec;
+					board.push_back(empty_vec);
+				}
+				if (str_board[i] == '0' || str_board[i] == 'O' || str_board[i] == 'X')
+				{
+					board[(int)i / 15].push_back(str_board[i]);
+				}
+			}
+
+			/// Schowing changed board
+			vector<vector<bool>> moves;
+			GetAllMoves(board, moves);
+			for (int i = 0; i < 15; i++)
+			{
+				for (int j = 0; j < 15; j++)
+				{
+					if (board[i][j] == 'X')
+						cout << "\033[32m" << board[i][j] << " ";
+					else if (board[i][j] == 'O')
+						cout << "\033[31m" << board[i][j] << " ";
+					else if (moves[i][j])
+						cout << "\033[33m" << board[i][j] << " ";
+					else if (j <= right_x_subtstractor && j >= left_x_subtstractor && i <= right_y_subtstractor && i >= left_y_subtstractor)
+						cout << "\033[34m" << board[i][j] << " ";
+					else
+						cout << "\033[0m" << board[i][j] << " ";
+
+				}
+				cout << "\033[0m" << endl;
+			}
+		}
 
 		// Saving temp best move
 		fstream return_file;
@@ -956,9 +699,13 @@ int main()
 		//CREATING DATA
 		fstream calculated_moves;
 		if (making_data)
+		{
 			calculated_moves.open("calculated_moves.txt", ios::app);
 			calculated_moves << (string)str_board << " ; " << move << endl;	///UN COMMENT TO MAKE DATA
 			calculated_moves.close();
+		}
 	}
-	exit(0);
+	return 0;
 }
+
+//board to test: 000000000000000000000000000000000000000000000000000000000000000000000X000000000000XO00000000000OOO000000000000XOX000000000000O0X00000000000XO0X0000000000000000000000000000000000000000000000000000000000000000000000000000000000

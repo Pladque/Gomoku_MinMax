@@ -45,7 +45,7 @@ for line in file_moves_data_r.readlines():
 file_moves_data_r.close()
 
 #calc good depth
-depth = 4  #temp
+depth = 5  #temp
 
 # Find good square
 left_x_substr, right_x_substr, left_y_substr, right_y_substr = 0,14,0,14    #temp
