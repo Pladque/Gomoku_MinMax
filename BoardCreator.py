@@ -23,6 +23,8 @@ OPPONENT = WHITE
 # make use of x and y substractors
 # make auto clicker
 
+MOVES_BASE = {}
+LAST_4_MOVES = []
 
 def get_curr_board(ss_gap:int) ->str:
     time.sleep(ss_gap)
@@ -44,6 +46,13 @@ def get_curr_board(ss_gap:int) ->str:
 
     return board_str
 
+def create_moves_base():
+    file_moves_data_r = open("calculated_moves.txt", 'r')
+    for line in file_moves_data_r.readlines():
+        MOVES_BASE[line[:line.index(';')].replace(' ', '')] = int(line[line.index(';')+1:].replace(' ', '').replace('\n', ''))
+    file_moves_data_r.close()
+
+
 #search board in file_moves_data_r
 def find_in_previously_calculated(board_str:str) -> int:
     file_moves_data_r = open("calculated_moves.txt", 'r')
@@ -51,13 +60,14 @@ def find_in_previously_calculated(board_str:str) -> int:
     for line in file_moves_data_r.readlines():
         if  board_str == line[:line.index(';')].replace(' ', ''):
             move = int(line[line.index(';')+1:].replace(' ', '').replace('\n', ''))
-            return move
+            return int(move)
     file_moves_data_r.close()
 
     return -1
 
-def save_parameters_to_file(board_str:str, depth:int, left_x_substr:int, right_x_substr:int,left_y_substr:int, right_y_substr:int):
+def save_parameters_to_file(board_list:list, depth:int, left_x_substr:int, right_x_substr:int,left_y_substr:int, right_y_substr:int):
     file_board_w = open("board.txt", 'w')
+    board_str = ''.join(board_list)
     file_board_w.write(board_str)
     file_board_w.write('\n')
     file_board_w.write(str(depth))
@@ -79,7 +89,7 @@ def run_cpp():
 #o = subprocess.Popen(['cmd','/c',r'D:\Projects\PythonProjects\PrivateGithub\Tic-Tac-Toe_MinMax\EXE\MULTITHREAD tictactoe cpp 15x15.exe'])
 #o.wait()  
 
-def print_board_from_file(board_str:str):
+def get_indexand_print_board_from_file(board_list:list):
     file_move_from_cpp_r = open("string_index_return.txt", 'r')
     ind = file_move_from_cpp_r.readline()
     ind = int(ind)
@@ -87,7 +97,6 @@ def print_board_from_file(board_str:str):
     ind_y = int(int(ind) /15)
     print(ind_x, ind_y)
     file_move_from_cpp_r.close()
-    board_list = list(board_str)
     board_list[ind_y * 15 + ind_x] = 'X'        
 
     for y in range(15):
@@ -103,18 +112,58 @@ def print_board_from_file(board_str:str):
                 
                 
         print()
+
+    return ind_y * 15 + ind_x
+
+def print_curr_board(board_list:list, move:int):
+    ind_x = move % 15
+    ind_y = move / 15
+    
+    for y in range(15):
+        for x in range(15):
+            if y*15 + x == move:
+                print(colored(board_list[y*15 + x], 'blue', 'on_white'), end = '')
+            elif board_list[y*15 + x] == 'O':
+                print(colored(board_list[y*15 + x], 'red'), end = '')
+            elif board_list[y*15 + x] == 'X':
+                print(colored(board_list[y*15 + x], 'green'), end = '')
+            elif board_list[y*15 + x] == '0':
+                print(colored(board_list[y*15 + x], 'white'), end = '')
+        print()
+
+def calc_x_y_substractors():
+    #LAST_4_MOVES
+    return 0, 14,0,14
+
 #read file_move_from_cpp_r file
 #convert it to coords
 #click on right spot on screen
 
 if __name__ == '__main__':
-    board_str = get_curr_board(1)
-    move = find_in_previously_calculated(board_str)
-    if move != -1:
-        board_str[move] = AI
-    else:
-        save_parameters_to_file(board_str, 5, 0, 14, 0, 14)
-        run_cpp()
-    print_board_from_file(board_str)
+    create_moves_base()
+    board_list = []
+    x_l_substr, x_r_range, y_l_substr, y_r_range =  0, 14, 0, 14
+    while True:
+        temp_board_str = get_curr_board(1)
+        #print(list(temp_board_str))
+        #print(board_list)
+        while ''.join(board_list) == temp_board_str:
+            temp_board_str = get_curr_board(1)
+        board_list = list(temp_board_str)
+        #move = find_in_previously_calculated(board_str)
+        move = 0
+        if ''.join(board_list) in MOVES_BASE.keys():
+            move = MOVES_BASE[''.join(board_list)]
+            board_list[move] = 'X'
+            print_curr_board(board_list, move)
+        else:
+            save_parameters_to_file(board_list, 5, x_l_substr, x_r_range, y_l_substr, y_r_range)
+            run_cpp()
+            move = get_indexand_print_board_from_file(board_list)
+            board_list[move] = 'X'
 
+        LAST_4_MOVES.append(move)
+        if len(LAST_4_MOVES>4):
+            LAST_4_MOVES.pop(0)
+        x_l_substr, x_r_range, y_l_substr, y_r_range = calc_x_y_substractors()
 
