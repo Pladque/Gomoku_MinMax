@@ -9,21 +9,11 @@
 
 using namespace std;
 
-///OPTYMALIZATION IDEAS ///
-//6. clean up code
-//8. Build it, and run .exe from python (use file to communicate python<->cpp)
-//11. try some optymalization (group ifs,less math etc)
-//18. ask on group if it is easy to reprogram it to GPU
-//19. make bigger data prevoiusly calculated moves
-//20. consider first new move optyions
-
 int ScoreBoard(char board[15][15], char& maximaler, char& minimaler);
 int EvalBoard(char board[15][15], char& maximaler, char& minimaler);
 void GetAllMoves(char board[15][15], bool moves[15][15]);
 char GetWinner(char board[15][15]);
-int FindBestMove(char board[15][15], char turn, int depth, int alpha, int beta, char& maximaler, char& minimaler, int move_x, int move_y);
-
-//map<vector<vector<char>>, int> ALLBOARDS;
+int FindBestMove(char board[15][15], char turn, int depth, int alpha, int beta, char& maximaler, char& minimaler, short& move_x, short& move_y);
 
 class MinMax
 {
@@ -44,7 +34,7 @@ MinMax::MinMax(char AI_Char)
 }
 
 int FindBestMove(char board[15][15], char turn, int depth, int alpha, int beta, char& maximaler, char& minimaler,
-	int move_x, int move_y)
+	short& move_x, short& move_y)
 {
 	if (depth == 0)
 	{
@@ -56,28 +46,18 @@ int FindBestMove(char board[15][15], char turn, int depth, int alpha, int beta, 
 	{
 		return (winner == maximaler) ? INT_MAX : INT_MIN;
 	}
-	char my_board[15][15];
 
-	for (int i = 0; i < 15; i++)
-		for (int j = 0; j < 15; j++)
-			my_board[i][j] = board[i][j];
+	char my_board[15][15];
+	memcpy(my_board, board, 225);
 
 	my_board[move_x][move_y] = (turn == minimaler) ? maximaler : minimaler;
 
-	//skipping already considered boards:
-	//if (ALLBOARDS.find(board) != ALLBOARDS.end())
-	{
-		//return ALLBOARDS[board];
-	}
-
 	int bestscore = (turn == maximaler) ? INT_MIN : INT_MAX;
 
-	//vector<vector<bool>> all_moves;
-	bool all_moves[15][15];
-	GetAllMoves(my_board, all_moves);
+	//bool all_moves[15][15];
+	//GetAllMoves(my_board, all_moves);
 
-	int eval; //AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-
+	int eval;
 	short seven_minus_i;
 	short seven_plus_i;
 	short seven_minus_j;
@@ -95,46 +75,68 @@ int FindBestMove(char board[15][15], char turn, int depth, int alpha, int beta, 
 				seven_minus_j = 7 - j;
 				seven_plus_j = 7 + j;
 
-				if (all_moves[seven_minus_j][seven_minus_i])
+				if (my_board[seven_minus_j][seven_minus_i] == '0' &&
+					((seven_minus_j <= 13 && my_board[seven_minus_j + 1][seven_minus_i] != '0') || (seven_minus_j >= 1 && my_board[seven_minus_j - 1][seven_minus_i] != '0')
+						|| (seven_minus_j <= 13 && seven_minus_i <= 13 && my_board[seven_minus_j + 1][seven_minus_i + 1] != '0') || 
+						(seven_minus_j >= 1 && seven_minus_i >= 1 && my_board[seven_minus_j - 1][seven_minus_i - 1] != '0')
+						|| (seven_minus_j >= 1 && seven_minus_i <= 13 && my_board[seven_minus_j - 1][seven_minus_i + 1] != '0') || 
+						(seven_minus_j <= 13 && seven_minus_i >= 1 && my_board[seven_minus_j + 1][seven_minus_i - 1] != '0')
+						|| (seven_minus_i <= 13 && my_board[seven_minus_j][seven_minus_i + 1] != '0') || (seven_minus_i >= 1 && my_board[seven_minus_j][seven_minus_i - 1] != '0')))
 				{
 					eval = FindBestMove(my_board, minimaler, depth - 1, alpha, beta, maximaler, minimaler, seven_minus_j, seven_minus_i);
 					bestscore = max(eval, bestscore);
 					alpha = max(eval, alpha);
 					if (beta <= alpha)
 					{
-						//ALLBOARDS[board] = bestscore;
 						return bestscore;
 					}
 				}if (j != 0 && i != 0)
 				{
-					if (all_moves[seven_plus_j][seven_minus_i])
+					if (my_board[seven_plus_j][seven_minus_i] == '0' &&
+						((seven_plus_j <= 13 && my_board[seven_plus_j + 1][seven_minus_i] != '0') || (seven_plus_j >= 1 && my_board[seven_plus_j - 1][seven_minus_i] != '0')
+							|| (seven_plus_j <= 13 && seven_minus_i <= 13 && my_board[seven_plus_j + 1][seven_minus_i + 1] != '0') ||
+							(seven_plus_j >= 1 && seven_minus_i >= 1 && my_board[seven_plus_j - 1][seven_minus_i - 1] != '0')
+							|| (seven_plus_j >= 1 && seven_minus_i <= 13 && my_board[seven_plus_j - 1][seven_minus_i + 1] != '0') ||
+							(seven_plus_j <= 13 && seven_minus_i >= 1 && my_board[seven_plus_j + 1][seven_minus_i - 1] != '0')
+							|| (seven_minus_i <= 13 && my_board[seven_plus_j][seven_minus_i + 1] != '0') || (seven_minus_i >= 1 && my_board[seven_plus_j][seven_minus_i - 1] != '0')))
 					{
 						eval = FindBestMove(my_board, minimaler, depth - 1, alpha, beta, maximaler, minimaler, seven_plus_j, seven_minus_i);
 						bestscore = max(eval, bestscore);
 						alpha = max(eval, alpha);
 						if (beta <= alpha)
 						{
-							//ALLBOARDS[board] = bestscore;
 							return bestscore;
 						}
-					}if (all_moves[seven_minus_j][seven_plus_i])
+					}
+					if (my_board[seven_minus_j][seven_plus_i] == '0' &&
+						((seven_minus_j <= 13 && my_board[seven_minus_j + 1][seven_plus_i] != '0') || (seven_minus_j >= 1 && my_board[seven_minus_j - 1][seven_plus_i] != '0')
+							|| (seven_minus_j <= 13 && seven_plus_i <= 13 && my_board[seven_minus_j + 1][seven_plus_i + 1] != '0') ||
+							(seven_minus_j >= 1 && seven_plus_i >= 1 && my_board[seven_minus_j - 1][seven_plus_i - 1] != '0')
+							|| (seven_minus_j >= 1 && seven_plus_i <= 13 && my_board[seven_minus_j - 1][seven_plus_i + 1] != '0') ||
+							(seven_minus_j <= 13 && seven_plus_i >= 1 && my_board[seven_minus_j + 1][seven_plus_i - 1] != '0')
+							|| (seven_plus_i <= 13 && my_board[seven_minus_j][seven_plus_i + 1] != '0') || (seven_plus_i >= 1 && my_board[seven_minus_j][seven_plus_i - 1] != '0')))
 					{
 						eval = FindBestMove(my_board, minimaler, depth - 1, alpha, beta, maximaler, minimaler, seven_minus_j, seven_plus_i);
 						bestscore = max(eval, bestscore);
 						alpha = max(eval, alpha);
 						if (beta <= alpha)
 						{
-							//ALLBOARDS[board] = bestscore;
 							return bestscore;
 						}
-					}if (all_moves[seven_plus_j][seven_plus_i])
+					}
+					if (my_board[seven_plus_j][seven_plus_i] == '0' &&
+						((seven_plus_j <= 13 && my_board[seven_plus_j + 1][seven_plus_i] != '0') || (seven_plus_j >= 1 && my_board[seven_plus_j - 1][seven_plus_i] != '0')
+							|| (seven_plus_j <= 13 && seven_plus_i <= 13 && my_board[seven_plus_j + 1][seven_plus_i + 1] != '0') ||
+							(seven_plus_j >= 1 && seven_plus_i >= 1 && my_board[seven_plus_j - 1][seven_plus_i - 1] != '0')
+							|| (seven_plus_j >= 1 && seven_plus_i <= 13 && my_board[seven_plus_j - 1][seven_plus_i + 1] != '0') ||
+							(seven_plus_j <= 13 && seven_plus_i >= 1 && my_board[seven_plus_j + 1][seven_plus_i - 1] != '0')
+							|| (seven_plus_i <= 13 && my_board[seven_plus_j][seven_plus_i + 1] != '0') || (seven_plus_i >= 1 && my_board[seven_plus_j][seven_plus_i - 1] != '0')))
 					{
 						eval = FindBestMove(my_board, minimaler, depth - 1, alpha, beta, maximaler, minimaler, seven_plus_j, seven_plus_i);
 						bestscore = max(eval, bestscore);
 						alpha = max(eval, alpha);
 						if (beta <= alpha)
 						{
-							//ALLBOARDS[board] = bestscore;
 							return bestscore;
 						}
 					}
@@ -154,61 +156,106 @@ int FindBestMove(char board[15][15], char turn, int depth, int alpha, int beta, 
 				seven_minus_j = 7 - j;
 				seven_plus_j = 7 + j;
 
-				if (all_moves[seven_minus_j][seven_minus_i])
+				if (my_board[seven_minus_j][seven_minus_i] == '0' &&
+					((seven_minus_j <= 13 && my_board[seven_minus_j + 1][seven_minus_i] != '0') || (seven_minus_j >= 1 && my_board[seven_minus_j - 1][seven_minus_i] != '0')
+						|| (seven_minus_j <= 13 && seven_minus_i <= 13 && my_board[seven_minus_j + 1][seven_minus_i + 1] != '0') ||
+						(seven_minus_j >= 1 && seven_minus_i >= 1 && my_board[seven_minus_j - 1][seven_minus_i - 1] != '0')
+						|| (seven_minus_j >= 1 && seven_minus_i <= 13 && my_board[seven_minus_j - 1][seven_minus_i + 1] != '0') ||
+						(seven_minus_j <= 13 && seven_minus_i >= 1 && my_board[seven_minus_j + 1][seven_minus_i - 1] != '0')
+						|| (seven_minus_i <= 13 && my_board[seven_minus_j][seven_minus_i + 1] != '0') || (seven_minus_i >= 1 && my_board[seven_minus_j][seven_minus_i - 1] != '0')))
 				{
 					eval = FindBestMove(my_board, maximaler, depth - 1, alpha, beta, maximaler, minimaler, seven_minus_j, seven_minus_i);
 					bestscore = min(eval, bestscore);
 					beta = min(eval, beta);
 					if (beta <= alpha)
 					{
-						//ALLBOARDS[board] = bestscore;
 						return bestscore;
 					}
 				}
 				if (j != 0 && i != 0)
 				{
-					if (all_moves[seven_plus_j][seven_minus_i])
+					if (my_board[seven_plus_j][seven_minus_i] == '0' &&
+						((seven_plus_j <= 13 && my_board[seven_plus_j + 1][seven_minus_i] != '0') || (seven_plus_j >= 1 && my_board[seven_plus_j - 1][seven_minus_i] != '0')
+							|| (seven_plus_j <= 13 && seven_minus_i <= 13 && my_board[seven_plus_j + 1][seven_minus_i + 1] != '0') ||
+							(seven_plus_j >= 1 && seven_minus_i >= 1 && my_board[seven_plus_j - 1][seven_minus_i - 1] != '0')
+							|| (seven_plus_j >= 1 && seven_minus_i <= 13 && my_board[seven_plus_j - 1][seven_minus_i + 1] != '0') ||
+							(seven_plus_j <= 13 && seven_minus_i >= 1 && my_board[seven_plus_j + 1][seven_minus_i - 1] != '0')
+							|| (seven_minus_i <= 13 && my_board[seven_plus_j][seven_minus_i + 1] != '0') || (seven_minus_i >= 1 && my_board[seven_plus_j][seven_minus_i - 1] != '0')))
 					{
 						eval = FindBestMove(my_board, maximaler, depth - 1, alpha, beta, maximaler, minimaler, seven_plus_j, seven_minus_i);
 						bestscore = min(eval, bestscore);
 						beta = min(eval, beta);
 						if (beta <= alpha)
 						{
-							//ALLBOARDS[board] = bestscore;
 							return bestscore;
 						}
-					}if (all_moves[seven_plus_j][seven_plus_i])
-					{
-						eval = FindBestMove(my_board, maximaler, depth - 1, alpha, beta, maximaler, minimaler, seven_plus_j, seven_plus_i);
-						bestscore = min(eval, bestscore);
-						beta = min(eval, beta);
-						if (beta <= alpha)
-						{
-							//ALLBOARDS[board] = bestscore;
-							return bestscore;
-						}
-					} if (all_moves[seven_minus_j][seven_plus_i])
+					}
+					if (my_board[seven_minus_j][seven_plus_i] == '0' &&
+						((seven_minus_j <= 13 && my_board[seven_minus_j + 1][seven_plus_i] != '0') || (seven_minus_j >= 1 && my_board[seven_minus_j - 1][seven_plus_i] != '0')
+							|| (seven_minus_j <= 13 && seven_plus_i <= 13 && my_board[seven_minus_j + 1][seven_plus_i + 1] != '0') ||
+							(seven_minus_j >= 1 && seven_plus_i >= 1 && my_board[seven_minus_j - 1][seven_plus_i - 1] != '0')
+							|| (seven_minus_j >= 1 && seven_plus_i <= 13 && my_board[seven_minus_j - 1][seven_plus_i + 1] != '0') ||
+							(seven_minus_j <= 13 && seven_plus_i >= 1 && my_board[seven_minus_j + 1][seven_plus_i - 1] != '0')
+							|| (seven_plus_i <= 13 && my_board[seven_minus_j][seven_plus_i + 1] != '0') || (seven_plus_i >= 1 && my_board[seven_minus_j][seven_plus_i - 1] != '0')))
 					{
 						eval = FindBestMove(my_board, maximaler, depth - 1, alpha, beta, maximaler, minimaler, seven_minus_j, seven_plus_i);
 						bestscore = min(eval, bestscore);
 						beta = min(eval, beta);
 						if (beta <= alpha)
 						{
-							//ALLBOARDS[board] = bestscore;
 							return bestscore;
 						}
 					}
+					if (my_board[seven_plus_j][seven_plus_i] == '0' &&
+						((seven_plus_j <= 13 && my_board[seven_plus_j + 1][seven_plus_i] != '0') || (seven_plus_j >= 1 && my_board[seven_plus_j - 1][seven_plus_i] != '0')
+							|| (seven_plus_j <= 13 && seven_plus_i <= 13 && my_board[seven_plus_j + 1][seven_plus_i + 1] != '0') ||
+							(seven_plus_j >= 1 && seven_plus_i >= 1 && my_board[seven_plus_j - 1][seven_plus_i - 1] != '0')
+							|| (seven_plus_j >= 1 && seven_plus_i <= 13 && my_board[seven_plus_j - 1][seven_plus_i + 1] != '0') ||
+							(seven_plus_j <= 13 && seven_plus_i >= 1 && my_board[seven_plus_j + 1][seven_plus_i - 1] != '0')
+							|| (seven_plus_i <= 13 && my_board[seven_plus_j][seven_plus_i + 1] != '0') || (seven_plus_i >= 1 && my_board[seven_plus_j][seven_plus_i - 1] != '0')))
+					{
+						eval = FindBestMove(my_board, maximaler, depth - 1, alpha, beta, maximaler, minimaler, seven_plus_j, seven_plus_i);
+						bestscore = min(eval, bestscore);
+						beta = min(eval, beta);
+						if (beta <= alpha)
+						{
+							return bestscore;
+						}
+					} 
 				}
 			}
 		}
 	}
-
-	//ALLBOARDS[board] = bestscore;
 	return bestscore;
 }
 
+void printBoard(char board[15][15], int right_x_subtstractor, int left_x_subtstractor, int right_y_subtstractor, int left_y_subtstractor)
+{
+	bool moves[15][15];
+	GetAllMoves(board, moves);
+	for (int i = 0; i < 15; i++)
+	{
+		for (int j = 0; j < 15; j++)
+		{
+			if (board[i][j] == 'X')
+				cout << "\033[32m" << board[i][j] << " ";
+			else if (board[i][j] == 'O')
+				cout << "\033[31m" << board[i][j] << " ";
+			else if (moves[i][j])
+				cout << "\033[33m" << board[i][j] << " ";
+			else if (j <= right_x_subtstractor && j >= left_x_subtstractor && i <= right_y_subtstractor && i >= left_y_subtstractor)
+				cout << "\033[34m" << board[i][j] << " ";
+			else
+				cout << "\033[0m" << board[i][j] << " ";
+
+		}
+		cout << "\033[0m" << endl;
+	}
+}
+
+
 void FindBestScoreInBoardAndReplaceBestIfBetter(int& BestInd, int& BestScore, int& score, char board[15][15], char turn, int depth, int& alpha, int& beta,
-	char maximaler, char minimaler, int move_x, int move_y)
+	char maximaler, char minimaler, short move_x, short move_y)
 {
 	score = FindBestMove(board, turn, depth, alpha, beta, maximaler, minimaler, move_x, move_y);
 	if (score > BestScore)
@@ -237,7 +284,6 @@ int GetBestMove(string& str_board, char turn, int depth, char maximaler, char mi
 		}
 	}
 
-	//vector<vector<bool>> possible_moves;
 	bool possible_moves[15][15];
 	GetAllMoves(board, possible_moves);
 
@@ -268,25 +314,21 @@ int GetBestMove(string& str_board, char turn, int depth, char maximaler, char mi
 			if (possible_moves[seven_minus_j][seven_minus_i] && seven_minus_j <= right_x_subtstractor && seven_minus_j >= left_x_subtstractor && seven_minus_i <= right_y_subtstractor && seven_minus_i >= left_y_subtstractor)
 			{
 				threads.push_back(thread(FindBestScoreInBoardAndReplaceBestIfBetter, ref(BestInd), ref(bestScore), ref(score1), board, AI->Opponent_character, depth - 1, ref(alpha), ref(beta), maximaler, minimaler, seven_minus_j, seven_minus_i));
-				//FindBestScoreInBoardAndReplaceBestIfBetter( possible_moves[seven_minus_j][seven_minus_i], BestInd, bestScore, score1, board, AI->Opponent_character, depth - 1, alpha, beta, maximaler, minimaler, seven_minus_j, seven_minus_i);
 			}
 
 			if (possible_moves[seven_plus_j][seven_plus_i] && seven_plus_j <= right_x_subtstractor && seven_plus_j >= left_x_subtstractor && seven_plus_i <= right_y_subtstractor && seven_plus_i >= left_y_subtstractor)
 			{
 				threads.push_back(thread(FindBestScoreInBoardAndReplaceBestIfBetter, ref(BestInd), ref(bestScore), ref(score2), board, AI->Opponent_character, depth - 1, ref(alpha), ref(beta), maximaler, minimaler, seven_plus_j, seven_plus_i));
-				//FindBestScoreInBoardAndReplaceBestIfBetter( possible_moves[seven_plus_j][seven_plus_i], (BestInd), (bestScore), (score2), board, AI->Opponent_character, depth - 1, (alpha), (beta), maximaler, minimaler, seven_plus_j, seven_plus_i);
 			}
 
 			if (possible_moves[seven_plus_j][seven_minus_i] && seven_plus_j <= right_x_subtstractor && seven_plus_j >= left_x_subtstractor && seven_minus_i <= right_y_subtstractor && seven_minus_i >= left_y_subtstractor)
 			{
 				threads.push_back(thread(FindBestScoreInBoardAndReplaceBestIfBetter, ref(BestInd), ref(bestScore), ref(score3), board, AI->Opponent_character, depth - 1, ref(alpha), ref(beta), maximaler, minimaler, seven_plus_j, seven_minus_i));
-				//FindBestScoreInBoardAndReplaceBestIfBetter( possible_moves[seven_plus_j][seven_minus_i], (BestInd), (bestScore), (score3), board, AI->Opponent_character, depth - 1, (alpha), (beta), maximaler, minimaler, seven_plus_j, seven_minus_i);
 			}
 
 			if (possible_moves[seven_minus_j][seven_plus_i] && seven_minus_j <= right_x_subtstractor && seven_minus_j >= left_x_subtstractor && seven_plus_i <= right_y_subtstractor && seven_plus_i >= left_y_subtstractor)
 			{
 				threads.push_back(thread(FindBestScoreInBoardAndReplaceBestIfBetter, ref(BestInd), ref(bestScore), ref(score4), board, AI->Opponent_character, depth - 1, ref(alpha), ref(beta), maximaler, minimaler, seven_minus_j, seven_plus_i));
-				//FindBestScoreInBoardAndReplaceBestIfBetter( possible_moves[seven_minus_j][seven_plus_i], (BestInd), (bestScore), (score4), board, AI->Opponent_character, depth - 1, (alpha), (beta), maximaler, minimaler, seven_minus_j, seven_plus_i);
 			}
 		}
 	}
@@ -295,7 +337,6 @@ int GetBestMove(string& str_board, char turn, int depth, char maximaler, char mi
 	{
 		if (i % 4 == 0)
 		{
-			//system("cls");
 			cout << (float)i / threads.size() << endl;
 		}
 		threads[i].join();
@@ -320,7 +361,6 @@ char GetWinner(char board[15][15])
 				// Checking column
 				if (i >= 4 && board[i][j] == board[i_minus_sth[0]][j] && board[i_minus_sth[0]][j] == board[i_minus_sth[1]][j]
 					&& board[i_minus_sth[1]][j] == board[i_minus_sth[2]][j] && board[i_minus_sth[2]][j] == board[i_minus_sth[3]][j])
-					//&& ((i == 14 || board[i + 1][j] != board[i][j])))
 				{
 					if (i > 4 && ((i == 14 || board[i + 1][j] != board[i][j]) && board[i][j] != board[i - 5][j]))
 					{
@@ -337,7 +377,6 @@ char GetWinner(char board[15][15])
 					//checking row
 					if (board[i][j] == board[i][j - 1] && board[i][j - 1] == board[i][j - 2]
 						&& board[i][j - 2] == board[i][j - 3] && board[i][j - 3] == board[i][j - 4])
-						//&& (j == 14 || board[i][j + 1] != board[i][j]))
 					{
 						if (j > 4 && (j == 14 || board[i][j + 1] != board[i][j]) && board[i][j - 5] != board[i][j])
 						{
@@ -351,7 +390,6 @@ char GetWinner(char board[15][15])
 					//checking diagnals from upper left to bottom right
 					if (i >= 4 && board[i][j] == board[i_minus_sth[0]][j - 1] && board[i_minus_sth[0]][j - 1] == board[i_minus_sth[1]][j - 2]
 						&& board[i_minus_sth[1]][j - 2] == board[i_minus_sth[2]][j - 3] && board[i_minus_sth[2]][j - 3] == board[i_minus_sth[3]][j - 4])
-						//&& ((i == 14 || j == 14) || board[i][j] != board[i + 1][j + 1]))
 					{
 						if (i > 4 && j > 4 && ((i == 14 || j == 14) || board[i][j] != board[i + 1][j + 1]) && board[i][j] != board[i - 5][j - 5])
 						{
@@ -365,7 +403,6 @@ char GetWinner(char board[15][15])
 					//checking diagnals from upper right to bottom left
 					if (i <= 10 && board[i][j] == board[i + 1][j - 1] && board[i + 1][j - 1] == board[i + 2][j - 2]
 						&& board[i + 2][j - 2] == board[i + 3][j - 3] && board[i + 3][j - 3] == board[i + 4][j - 4])
-						//&& ((i == 0 || j == 14) || board[i][j] != board[i_minus_sth[0]][j + 1]))
 					{
 						if (i < 10 && j > 4 && ((i == 0 || j == 14) || board[i][j] != board[i - 1][j + 1]) && board[i][j] != board[i + 5][j - 5])
 						{
@@ -575,14 +612,15 @@ int main()
 {
 	bool making_data = false;
 	bool print_board = true;
-	int depth = 7;
+	int depth = 5;
 
 	int left_x_subtstractor = 0, right_x_subtstractor = 14, left_y_subtstractor = 0, right_y_subtstractor = 14;
 	string str_board;
 
 	int indexes_range;
 	if (making_data)
-		indexes_range = 255;
+		//indexes_range = 255;
+		indexes_range = 195;
 	else
 		indexes_range = 1;
 
@@ -591,6 +629,8 @@ int main()
 
 		if (making_data)
 		{
+			while (index % 15 < 3 || index % 15 > 11) index++;	//bc first wanna predict more possiblem opponent moves
+
 			cout << "INDEX: " << index << endl;
 			str_board = "000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000";
 			str_board[112] = 'X';
@@ -625,40 +665,21 @@ int main()
 			return 0;
 		}
 
-		char board[15][15];
-		/// TEMP CHECKING EVAL
-			/*
-			// COnvertign str_board to vector board
-			for (int i = 0; i < str_board.length(); i++)
-			{
-				if (i % 15 == 0)
-				{
-					vector<char> empty_vec;
-					board.push_back(empty_vec);
-				}
-				if (str_board[i] == '0' || str_board[i] == 'O' || str_board[i] == 'X')
-				{
-					board[(int)i / 15].push_back(str_board[i]);
-				}
-			}
-			char x = 'X';
-			char o = 'O';
-			cout << "board eval: " << EvalBoard(board, x, o) << endl;
-			*/
-
-			/// FINDING BEST MOVE
+		/// FINDING BEST MOVE
 		const clock_t begin_time = clock();
 		int move = 0;
 		move = GetBestMove(str_board, 'X', depth, 'X', 'O', left_x_subtstractor, right_x_subtstractor, left_y_subtstractor, right_y_subtstractor);
-		cout << "MOVE: " << move % 15 << " " << (int)move / 15 << endl;
-		cout << "MOVE: " << move << " " << endl;
-		cout << "IT TOOK: " << float(clock() - begin_time) / CLOCKS_PER_SEC << endl;
 
-		str_board[move] = 'X';
-		//vector<vector<char>> board;
+
+		char board[15][15];
 		if (print_board)
 		{
-			// COnvertign str_board to vector board
+			cout << "MOVE: " << move % 15 << " " << (int)move / 15 << endl;
+			cout << "MOVE: " << move << " " << endl;
+			cout << "IT TOOK: " << float(clock() - begin_time) / CLOCKS_PER_SEC << endl;
+
+			str_board[move] = 'X';
+			// COnvertign str_board to chars board
 			int j = -1;
 			for (int i = 0; i < str_board.length(); i++)
 			{
@@ -672,28 +693,7 @@ int main()
 				}
 			}
 
-			/// Schowing changed board
-			//vector<vector<bool>> moves;
-			bool moves[15][15];
-			GetAllMoves(board, moves);
-			for (int i = 0; i < 15; i++)
-			{
-				for (int j = 0; j < 15; j++)
-				{
-					if (board[i][j] == 'X')
-						cout << "\033[32m" << board[i][j] << " ";
-					else if (board[i][j] == 'O')
-						cout << "\033[31m" << board[i][j] << " ";
-					else if (moves[i][j])
-						cout << "\033[33m" << board[i][j] << " ";
-					else if (j <= right_x_subtstractor && j >= left_x_subtstractor && i <= right_y_subtstractor && i >= left_y_subtstractor)
-						cout << "\033[34m" << board[i][j] << " ";
-					else
-						cout << "\033[0m" << board[i][j] << " ";
-
-				}
-				cout << "\033[0m" << endl;
-			}
+			printBoard(board, right_x_subtstractor, left_x_subtstractor, right_y_subtstractor, left_y_subtstractor);
 		}
 
 		// Saving temp best move
