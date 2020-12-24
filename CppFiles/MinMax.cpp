@@ -54,8 +54,8 @@ int FindBestMove(char board[15][15], char turn, int depth, int alpha, int beta, 
 
 	int bestscore = (turn == maximaler) ? INT_MIN : INT_MAX;
 
-	//bool all_moves[15][15];
-	//GetAllMoves(my_board, all_moves);
+	bool all_moves[15][15];
+	GetAllMoves(my_board, all_moves);
 
 	int eval;
 	short seven_minus_i;
@@ -75,13 +75,7 @@ int FindBestMove(char board[15][15], char turn, int depth, int alpha, int beta, 
 				seven_minus_j = 7 - j;
 				seven_plus_j = 7 + j;
 
-				if (my_board[seven_minus_j][seven_minus_i] == '0' &&
-					((seven_minus_j <= 13 && my_board[seven_minus_j + 1][seven_minus_i] != '0') || (seven_minus_j >= 1 && my_board[seven_minus_j - 1][seven_minus_i] != '0')
-						|| (seven_minus_j <= 13 && seven_minus_i <= 13 && my_board[seven_minus_j + 1][seven_minus_i + 1] != '0') || 
-						(seven_minus_j >= 1 && seven_minus_i >= 1 && my_board[seven_minus_j - 1][seven_minus_i - 1] != '0')
-						|| (seven_minus_j >= 1 && seven_minus_i <= 13 && my_board[seven_minus_j - 1][seven_minus_i + 1] != '0') || 
-						(seven_minus_j <= 13 && seven_minus_i >= 1 && my_board[seven_minus_j + 1][seven_minus_i - 1] != '0')
-						|| (seven_minus_i <= 13 && my_board[seven_minus_j][seven_minus_i + 1] != '0') || (seven_minus_i >= 1 && my_board[seven_minus_j][seven_minus_i - 1] != '0')))
+				if (all_moves[seven_minus_j][seven_minus_i])
 				{
 					eval = FindBestMove(my_board, minimaler, depth - 1, alpha, beta, maximaler, minimaler, seven_minus_j, seven_minus_i);
 					bestscore = max(eval, bestscore);
@@ -92,13 +86,7 @@ int FindBestMove(char board[15][15], char turn, int depth, int alpha, int beta, 
 					}
 				}if (j != 0 && i != 0)
 				{
-					if (my_board[seven_plus_j][seven_minus_i] == '0' &&
-						((seven_plus_j <= 13 && my_board[seven_plus_j + 1][seven_minus_i] != '0') || (seven_plus_j >= 1 && my_board[seven_plus_j - 1][seven_minus_i] != '0')
-							|| (seven_plus_j <= 13 && seven_minus_i <= 13 && my_board[seven_plus_j + 1][seven_minus_i + 1] != '0') ||
-							(seven_plus_j >= 1 && seven_minus_i >= 1 && my_board[seven_plus_j - 1][seven_minus_i - 1] != '0')
-							|| (seven_plus_j >= 1 && seven_minus_i <= 13 && my_board[seven_plus_j - 1][seven_minus_i + 1] != '0') ||
-							(seven_plus_j <= 13 && seven_minus_i >= 1 && my_board[seven_plus_j + 1][seven_minus_i - 1] != '0')
-							|| (seven_minus_i <= 13 && my_board[seven_plus_j][seven_minus_i + 1] != '0') || (seven_minus_i >= 1 && my_board[seven_plus_j][seven_minus_i - 1] != '0')))
+					if (all_moves[seven_plus_j][seven_minus_i])
 					{
 						eval = FindBestMove(my_board, minimaler, depth - 1, alpha, beta, maximaler, minimaler, seven_plus_j, seven_minus_i);
 						bestscore = max(eval, bestscore);
@@ -108,13 +96,7 @@ int FindBestMove(char board[15][15], char turn, int depth, int alpha, int beta, 
 							return bestscore;
 						}
 					}
-					if (my_board[seven_minus_j][seven_plus_i] == '0' &&
-						((seven_minus_j <= 13 && my_board[seven_minus_j + 1][seven_plus_i] != '0') || (seven_minus_j >= 1 && my_board[seven_minus_j - 1][seven_plus_i] != '0')
-							|| (seven_minus_j <= 13 && seven_plus_i <= 13 && my_board[seven_minus_j + 1][seven_plus_i + 1] != '0') ||
-							(seven_minus_j >= 1 && seven_plus_i >= 1 && my_board[seven_minus_j - 1][seven_plus_i - 1] != '0')
-							|| (seven_minus_j >= 1 && seven_plus_i <= 13 && my_board[seven_minus_j - 1][seven_plus_i + 1] != '0') ||
-							(seven_minus_j <= 13 && seven_plus_i >= 1 && my_board[seven_minus_j + 1][seven_plus_i - 1] != '0')
-							|| (seven_plus_i <= 13 && my_board[seven_minus_j][seven_plus_i + 1] != '0') || (seven_plus_i >= 1 && my_board[seven_minus_j][seven_plus_i - 1] != '0')))
+					if (all_moves[seven_minus_j][seven_plus_i])
 					{
 						eval = FindBestMove(my_board, minimaler, depth - 1, alpha, beta, maximaler, minimaler, seven_minus_j, seven_plus_i);
 						bestscore = max(eval, bestscore);
@@ -124,13 +106,7 @@ int FindBestMove(char board[15][15], char turn, int depth, int alpha, int beta, 
 							return bestscore;
 						}
 					}
-					if (my_board[seven_plus_j][seven_plus_i] == '0' &&
-						((seven_plus_j <= 13 && my_board[seven_plus_j + 1][seven_plus_i] != '0') || (seven_plus_j >= 1 && my_board[seven_plus_j - 1][seven_plus_i] != '0')
-							|| (seven_plus_j <= 13 && seven_plus_i <= 13 && my_board[seven_plus_j + 1][seven_plus_i + 1] != '0') ||
-							(seven_plus_j >= 1 && seven_plus_i >= 1 && my_board[seven_plus_j - 1][seven_plus_i - 1] != '0')
-							|| (seven_plus_j >= 1 && seven_plus_i <= 13 && my_board[seven_plus_j - 1][seven_plus_i + 1] != '0') ||
-							(seven_plus_j <= 13 && seven_plus_i >= 1 && my_board[seven_plus_j + 1][seven_plus_i - 1] != '0')
-							|| (seven_plus_i <= 13 && my_board[seven_plus_j][seven_plus_i + 1] != '0') || (seven_plus_i >= 1 && my_board[seven_plus_j][seven_plus_i - 1] != '0')))
+					if (all_moves[seven_plus_j][seven_plus_i])
 					{
 						eval = FindBestMove(my_board, minimaler, depth - 1, alpha, beta, maximaler, minimaler, seven_plus_j, seven_plus_i);
 						bestscore = max(eval, bestscore);
@@ -156,13 +132,7 @@ int FindBestMove(char board[15][15], char turn, int depth, int alpha, int beta, 
 				seven_minus_j = 7 - j;
 				seven_plus_j = 7 + j;
 
-				if (my_board[seven_minus_j][seven_minus_i] == '0' &&
-					((seven_minus_j <= 13 && my_board[seven_minus_j + 1][seven_minus_i] != '0') || (seven_minus_j >= 1 && my_board[seven_minus_j - 1][seven_minus_i] != '0')
-						|| (seven_minus_j <= 13 && seven_minus_i <= 13 && my_board[seven_minus_j + 1][seven_minus_i + 1] != '0') ||
-						(seven_minus_j >= 1 && seven_minus_i >= 1 && my_board[seven_minus_j - 1][seven_minus_i - 1] != '0')
-						|| (seven_minus_j >= 1 && seven_minus_i <= 13 && my_board[seven_minus_j - 1][seven_minus_i + 1] != '0') ||
-						(seven_minus_j <= 13 && seven_minus_i >= 1 && my_board[seven_minus_j + 1][seven_minus_i - 1] != '0')
-						|| (seven_minus_i <= 13 && my_board[seven_minus_j][seven_minus_i + 1] != '0') || (seven_minus_i >= 1 && my_board[seven_minus_j][seven_minus_i - 1] != '0')))
+				if (all_moves[seven_minus_j][seven_minus_i])
 				{
 					eval = FindBestMove(my_board, maximaler, depth - 1, alpha, beta, maximaler, minimaler, seven_minus_j, seven_minus_i);
 					bestscore = min(eval, bestscore);
@@ -174,13 +144,7 @@ int FindBestMove(char board[15][15], char turn, int depth, int alpha, int beta, 
 				}
 				if (j != 0 && i != 0)
 				{
-					if (my_board[seven_plus_j][seven_minus_i] == '0' &&
-						((seven_plus_j <= 13 && my_board[seven_plus_j + 1][seven_minus_i] != '0') || (seven_plus_j >= 1 && my_board[seven_plus_j - 1][seven_minus_i] != '0')
-							|| (seven_plus_j <= 13 && seven_minus_i <= 13 && my_board[seven_plus_j + 1][seven_minus_i + 1] != '0') ||
-							(seven_plus_j >= 1 && seven_minus_i >= 1 && my_board[seven_plus_j - 1][seven_minus_i - 1] != '0')
-							|| (seven_plus_j >= 1 && seven_minus_i <= 13 && my_board[seven_plus_j - 1][seven_minus_i + 1] != '0') ||
-							(seven_plus_j <= 13 && seven_minus_i >= 1 && my_board[seven_plus_j + 1][seven_minus_i - 1] != '0')
-							|| (seven_minus_i <= 13 && my_board[seven_plus_j][seven_minus_i + 1] != '0') || (seven_minus_i >= 1 && my_board[seven_plus_j][seven_minus_i - 1] != '0')))
+					if (all_moves[seven_plus_j][seven_minus_i])
 					{
 						eval = FindBestMove(my_board, maximaler, depth - 1, alpha, beta, maximaler, minimaler, seven_plus_j, seven_minus_i);
 						bestscore = min(eval, bestscore);
@@ -190,13 +154,7 @@ int FindBestMove(char board[15][15], char turn, int depth, int alpha, int beta, 
 							return bestscore;
 						}
 					}
-					if (my_board[seven_minus_j][seven_plus_i] == '0' &&
-						((seven_minus_j <= 13 && my_board[seven_minus_j + 1][seven_plus_i] != '0') || (seven_minus_j >= 1 && my_board[seven_minus_j - 1][seven_plus_i] != '0')
-							|| (seven_minus_j <= 13 && seven_plus_i <= 13 && my_board[seven_minus_j + 1][seven_plus_i + 1] != '0') ||
-							(seven_minus_j >= 1 && seven_plus_i >= 1 && my_board[seven_minus_j - 1][seven_plus_i - 1] != '0')
-							|| (seven_minus_j >= 1 && seven_plus_i <= 13 && my_board[seven_minus_j - 1][seven_plus_i + 1] != '0') ||
-							(seven_minus_j <= 13 && seven_plus_i >= 1 && my_board[seven_minus_j + 1][seven_plus_i - 1] != '0')
-							|| (seven_plus_i <= 13 && my_board[seven_minus_j][seven_plus_i + 1] != '0') || (seven_plus_i >= 1 && my_board[seven_minus_j][seven_plus_i - 1] != '0')))
+					if (all_moves[seven_minus_j][seven_plus_i])
 					{
 						eval = FindBestMove(my_board, maximaler, depth - 1, alpha, beta, maximaler, minimaler, seven_minus_j, seven_plus_i);
 						bestscore = min(eval, bestscore);
@@ -206,13 +164,7 @@ int FindBestMove(char board[15][15], char turn, int depth, int alpha, int beta, 
 							return bestscore;
 						}
 					}
-					if (my_board[seven_plus_j][seven_plus_i] == '0' &&
-						((seven_plus_j <= 13 && my_board[seven_plus_j + 1][seven_plus_i] != '0') || (seven_plus_j >= 1 && my_board[seven_plus_j - 1][seven_plus_i] != '0')
-							|| (seven_plus_j <= 13 && seven_plus_i <= 13 && my_board[seven_plus_j + 1][seven_plus_i + 1] != '0') ||
-							(seven_plus_j >= 1 && seven_plus_i >= 1 && my_board[seven_plus_j - 1][seven_plus_i - 1] != '0')
-							|| (seven_plus_j >= 1 && seven_plus_i <= 13 && my_board[seven_plus_j - 1][seven_plus_i + 1] != '0') ||
-							(seven_plus_j <= 13 && seven_plus_i >= 1 && my_board[seven_plus_j + 1][seven_plus_i - 1] != '0')
-							|| (seven_plus_i <= 13 && my_board[seven_plus_j][seven_plus_i + 1] != '0') || (seven_plus_i >= 1 && my_board[seven_plus_j][seven_plus_i - 1] != '0')))
+					if (all_moves[seven_plus_j][seven_plus_i])
 					{
 						eval = FindBestMove(my_board, maximaler, depth - 1, alpha, beta, maximaler, minimaler, seven_plus_j, seven_plus_i);
 						bestscore = min(eval, bestscore);

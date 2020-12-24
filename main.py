@@ -10,11 +10,15 @@ import subprocess
 import os
 from subprocess import Popen, PIPE
 from termcolor import colored
+from pynput.mouse import Button, Controller
 
 BLACK = (40, 40, 40)
 WHITE = (243, 243, 243)
-AI = BLACK
-OPPONENT = WHITE
+AI = WHITE
+OPPONENT = BLACK
+
+mouse = Controller()
+
 
 # TODO
 # rading from file previously calculated doesnt work sometimes idk why
@@ -25,6 +29,15 @@ OPPONENT = WHITE
 
 MOVES_BASE = {}
 LAST_4_MOVES = []
+
+
+f = open("mouseClickPos.txt", 'r')
+
+lines = f.readlines()
+CLICK_X_POSITIONS = [int(coord) for coord in lines[0].replace('\n', '').split(" ")]
+CLICK_Y_POSITIONS = [int(coord) for coord in lines[1].split(" ")]
+
+f.close()
 
 def get_curr_board(ss_gap:int) ->str:
     time.sleep(ss_gap)
@@ -43,7 +56,8 @@ def get_curr_board(ss_gap:int) ->str:
                 board_str += 'X'
             else:
                 board_str+='0'
-
+    if SS[175,284] == (238, 34, 17):
+        return "-1"
     return board_str
 
 def create_moves_base():
@@ -112,7 +126,7 @@ def get_indexand_print_board_from_file(board_list:list):
                 
                 
         print()
-
+    print()
     return ind_y * 15 + ind_x
 
 def print_curr_board(board_list:list, move:int):
@@ -135,16 +149,37 @@ def calc_x_y_substractors():
     #LAST_4_MOVES
     return 0, 14,0,14
 
+def click_mouse(move:int):
+    ind_x= move % 15
+    ind_y = int(move / 15)
+    print(ind_x)
+    print(ind_y)
+    mouse.position = (CLICK_X_POSITIONS[ind_x],CLICK_Y_POSITIONS[ind_y])
+    mouse.click(Button.left, 1)
+
+def read_postions_to_click():
+    f = open("mouseClickPos.txt", 'r')
+
+    lines = f.readlines()
+    CLICK_X_POSITIONS = [int(coord) for coord in lines[0].replace('\n', '').split(" ")]
+    CLICK_Y_POSITIONS = [int(coord) for coord in lines[1].split(" ")]
+
+    f.close()
+
+
 #read file_move_from_cpp_r file
 #convert it to coords
 #click on right spot on screen
 
 if __name__ == '__main__':
     create_moves_base()
+    read_postions_to_click()
     board_list = []
     x_l_substr, x_r_range, y_l_substr, y_r_range =  0, 14, 0, 14
     while True:
         temp_board_str = get_curr_board(1)
+        if temp_board_str == "-1":
+            break
         #print(list(temp_board_str))
         #print(board_list)
         while ''.join(board_list) == temp_board_str:
@@ -160,10 +195,13 @@ if __name__ == '__main__':
             save_parameters_to_file(board_list, 5, x_l_substr, x_r_range, y_l_substr, y_r_range)
             run_cpp()
             move = get_indexand_print_board_from_file(board_list)
-            board_list[move] = 'X'
+            #board_list[move] = 'X'
+        
+        click_mouse(move)
 
         LAST_4_MOVES.append(move)
-        if len(LAST_4_MOVES>4):
+        if len(LAST_4_MOVES)>4:
             LAST_4_MOVES.pop(0)
         x_l_substr, x_r_range, y_l_substr, y_r_range = calc_x_y_substractors()
 
+#000000000000000000000000000000000000000000000000000000000000000O0O000000000000O0O000000000000OXXXXOX00000000OXOOOX0000000000000X00000000000000X0000000000000000000000000000000000000000000000000000000000000000000000000000000000
