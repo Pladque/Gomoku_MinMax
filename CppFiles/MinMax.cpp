@@ -9,6 +9,9 @@
 
 using namespace std;
 
+///TODO
+/// IF SB HAS FE XXX OR X0XX SIGN IT AS DENGOREUS AND SCORE THEM WEL/BADLY!
+
 int ScoreBoard(char board[15][15], char& maximaler, char& minimaler);
 int EvalBoard(char board[15][15], char& maximaler, char& minimaler);
 void GetAllMoves(char board[15][15], bool moves[15][15]);
@@ -36,16 +39,16 @@ MinMax::MinMax(char AI_Char)
 int FindBestMove(char board[15][15], char turn, int depth, int alpha, int beta, char& maximaler, char& minimaler,
 	short& move_x, short& move_y)
 {
-	if (depth == 0)
+	if (depth == 0 || GetWinner(board) != '0')
 	{
 		return EvalBoard(board, maximaler, minimaler);
 	}
 
-	char winner = GetWinner(board);
-	if (winner != '0')
-	{
-		return (winner == maximaler) ? INT_MAX : INT_MIN;
-	}
+	//char winner = GetWinner(board);
+	//if (winner != '0')
+	//{
+	//	return (winner == maximaler) ? INT_MAX : INT_MIN;
+	//}
 
 	char my_board[15][15];
 	memcpy(my_board, board, 225);
@@ -173,7 +176,7 @@ int FindBestMove(char board[15][15], char turn, int depth, int alpha, int beta, 
 						{
 							return bestscore;
 						}
-					} 
+					}
 				}
 			}
 		}
@@ -314,11 +317,11 @@ char GetWinner(char board[15][15])
 				if (i >= 4 && board[i][j] == board[i_minus_sth[0]][j] && board[i_minus_sth[0]][j] == board[i_minus_sth[1]][j]
 					&& board[i_minus_sth[1]][j] == board[i_minus_sth[2]][j] && board[i_minus_sth[2]][j] == board[i_minus_sth[3]][j])
 				{
-					if (i > 4 && ((i == 14 || board[i + 1][j] != board[i][j]) && board[i][j] != board[i - 5][j]))
+					if (i > 4 && ((i == 14 || board[i + 1][j] != board[i][j]) && board[i - 5][j] != board[i][j]))
 					{
 						return board[i][j];
 					}
-					if (i == 4 && board[i + 1][j] != board[i][j])
+					if (i == 4 && board[5][j] != board[i][j])
 					{
 						return board[i][j];
 					}
@@ -347,7 +350,7 @@ char GetWinner(char board[15][15])
 						{
 							return board[i][j];
 						}
-						if (i == 4 && j == 4 && board[i][j] != board[i + 1][j + 1])
+						if (i == 4 && j == 4 && board[i][j] != board[5][5])
 						{
 							return board[i][j];
 						}
@@ -400,6 +403,8 @@ int ScoreBoard(char board[15][15], char& maximaler, char& minimaler) //AI +, pla
 {
 	int i_minus_sth[4];
 	int score = 0;
+
+	//int prev_score = 0;		//DEBUG
 	for (int i = 0; i <= 14; i++)
 	{
 		i_minus_sth[3] = i - 4;
@@ -408,20 +413,25 @@ int ScoreBoard(char board[15][15], char& maximaler, char& minimaler) //AI +, pla
 		i_minus_sth[0] = i - 1;
 		for (int j = 0; j <= 14; j++)
 		{
+			//prev_score = score;
 			if (board[i][j] != '0')
 			{
 				// Checking column
 				if (i >= 4)
 				{
-					if (board[i][j] == board[i_minus_sth[0]][j] && board[i_minus_sth[0]][j] == board[i_minus_sth[1]][j])
+					if (board[i][j] == board[i_minus_sth[0]][j] && board[i_minus_sth[0]][j] == board[i_minus_sth[1]][j]
+						&& ((i == 4 || board[i - 5][j] != board[i][j]) || (i == 13 || board[i + 2][j] != board[i][j])))	//bc I want exacly X in row and i checking here if There will be possibility to put stone here XD
 					{
 						//0XXXX or XXXX0 or win/lose
 						if (board[i_minus_sth[1]][j] == board[i_minus_sth[2]][j])
 						{
 							if (board[i_minus_sth[3]][j] == '0' && ((i != 14 && board[i + 1][j] == '0')))
-								return (board[i][j] == maximaler) ? INT_MAX / 2 : INT_MIN / 2;
+								score += (board[i][j] == maximaler) ? INT_MAX /8 : INT_MIN / 4;
 							if (board[i_minus_sth[3]][j] == '0' || (i != 14 && board[i + 1][j] == '0'))
+							{
+								//cout << "here: " <<board[i][j]<< endl;
 								score += (board[i][j] == maximaler) ? 2 : -2;
+							}
 							if (board[i_minus_sth[3]][j] == board[i][j] || (i != 14 && board[i + 1][j] == board[i][j]))
 								return (board[i][j] == maximaler) ? INT_MAX : INT_MIN;
 						}
@@ -451,15 +461,20 @@ int ScoreBoard(char board[15][15], char& maximaler, char& minimaler) //AI +, pla
 					//checking row
 					if (board[i][j] == board[i][j - 1] && board[i][j - 1] == board[i][j - 2])
 					{
+						//cout << "here: " << board[i][j] << endl;
 						//0XXXX or XXXX0 or win/lose
 						if (board[i][j - 2] == board[i][j - 3])
 						{
+							//cout << "here: " << board[i][j] << endl;
 							if (board[i][j - 4] == '0' && (j != 14 && board[i][j + 1] == '0'))
-								return (board[i][j] == maximaler) ? INT_MAX / 2 : INT_MIN / 2;
+								score += (board[i][j] == maximaler) ? INT_MAX / 8 : INT_MIN / 4;
 							if (board[i][j - 4] == board[i][j] || (j != 14 && board[i][j + 1] == board[i][j]))
 								return (board[i][j] == maximaler) ? INT_MAX : INT_MIN;
 							if (board[i][j - 4] == '0' || (j != 14 && board[i][j + 1] == '0'))
+							{
+								//cout << "here: " << board[i][j] << endl;
 								score += (board[i][j] == maximaler) ? 2 : -2;
+							}
 						}
 						//check column X0XXX
 						else if (board[i][j - 3] == '0' && board[i][j - 4] == board[i][j])
@@ -491,7 +506,7 @@ int ScoreBoard(char board[15][15], char& maximaler, char& minimaler) //AI +, pla
 							if (board[i_minus_sth[1]][j - 2] == board[i_minus_sth[2]][j - 3])
 							{
 								if (board[i_minus_sth[3]][j - 4] == '0' && ((i != 14 && j != 14) && board[i + 1][j + 1] == '0'))
-									return (board[i][j] == maximaler) ? INT_MAX / 2 : INT_MIN / 2;
+									score += (board[i][j] == maximaler) ? INT_MAX / 8 : INT_MIN / 4;
 								if (board[i_minus_sth[3]][j - 4] == '0' || board[i + 1][j + 1] == '0')
 									score += (board[i][j] == maximaler) ? 2 : -2;
 								if (board[i_minus_sth[3]][j - 4] == board[i][j] || board[i + 1][j + 1] == board[i][j])
@@ -523,13 +538,16 @@ int ScoreBoard(char board[15][15], char& maximaler, char& minimaler) //AI +, pla
 					{
 						if (board[i][j] == board[i + 1][j - 1] && board[i + 1][j - 1] == board[i + 2][j - 2])
 						{
+							//cout << "here: " << board[i][j] << endl;
 							//0XXXX or XXXX0 or win/lose
 							if (board[i + 2][j - 2] == board[i + 3][j - 3])
 							{
 								if (board[i + 4][j - 4] == '0' && (i != 0 && j != 14 && board[i - 1][j + 1] == '0'))
-									return (board[i][j] == maximaler) ? INT_MAX / 2 : INT_MIN / 2;
+									score += (board[i][j] == maximaler) ? INT_MAX / 8 : INT_MIN / 4;		// dividing by 20 bd next move will be opponent move 
 								if (board[i + 4][j - 4] == '0' || (i != 0 && j != 14 && board[i - 1][j + 1] == '0'))
+								{
 									score += (board[i][j] == maximaler) ? 2 : -2;
+								}
 								if (board[i + 4][j - 4] == board[i][j] || board[i - 1][j + 1] == board[i][j])
 									return (board[i][j] == maximaler) ? INT_MAX : INT_MIN;
 							}
@@ -555,6 +573,11 @@ int ScoreBoard(char board[15][15], char& maximaler, char& minimaler) //AI +, pla
 					}
 				}
 			}
+			//if (prev_score != score)
+			//{
+				//cout << i << "  " << j << endl;
+				//cout << score;
+			//}
 		}
 	}
 	return score;
@@ -619,6 +642,7 @@ int main()
 
 		/// FINDING BEST MOVE
 		const clock_t begin_time = clock();
+
 		int move = 0;
 		move = GetBestMove(str_board, 'X', depth, 'X', 'O', left_x_subtstractor, right_x_subtstractor, left_y_subtstractor, right_y_subtstractor);
 
@@ -644,7 +668,11 @@ int main()
 					board[j][i % 15] = str_board[i];
 				}
 			}
-
+			// DEBUG //
+			char x = 'X';
+			char o = 'O';
+			cout << ScoreBoard(board, x, o) << endl;
+			// END DEBUG //
 			printBoard(board, right_x_subtstractor, left_x_subtstractor, right_y_subtstractor, left_y_subtstractor);
 		}
 

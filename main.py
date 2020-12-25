@@ -14,8 +14,8 @@ from pynput.mouse import Button, Controller
 
 BLACK = (40, 40, 40)
 WHITE = (243, 243, 243)
-AI = WHITE
-OPPONENT = BLACK
+AI = BLACK
+OPPONENT = WHITE
 
 mouse = Controller()
 
@@ -176,6 +176,7 @@ if __name__ == '__main__':
     read_postions_to_click()
     board_list = []
     x_l_substr, x_r_range, y_l_substr, y_r_range =  0, 14, 0, 14
+    depth = 5
     while True:
         temp_board_str = get_curr_board(1)
         if temp_board_str == "-1":
@@ -192,11 +193,16 @@ if __name__ == '__main__':
             board_list[move] = 'X'
             print_curr_board(board_list, move)
         else:
+            print("DEPTH: ", depth)
             save_parameters_to_file(board_list, 5, x_l_substr, x_r_range, y_l_substr, y_r_range)
+            timer = time.time()
             run_cpp()
             move = get_indexand_print_board_from_file(board_list)
-            #board_list[move] = 'X'
-        
+            if time.time() - timer <= 0.15:
+                depth = 7
+            elif time.time() - timer >= 13:
+                depth = 5
+
         click_mouse(move)
 
         LAST_4_MOVES.append(move)
