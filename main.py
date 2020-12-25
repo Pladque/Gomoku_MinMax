@@ -194,13 +194,13 @@ if __name__ == '__main__':
             print_curr_board(board_list, move)
         else:
             print("DEPTH: ", depth)
-            save_parameters_to_file(board_list, 5, x_l_substr, x_r_range, y_l_substr, y_r_range)
+            save_parameters_to_file(board_list, depth, x_l_substr, x_r_range, y_l_substr, y_r_range)
             timer = time.time()
             run_cpp()
             move = get_indexand_print_board_from_file(board_list)
-            if time.time() - timer <= 0.15:
-                depth = 7
-            elif time.time() - timer >= 13:
+            if time.time() - timer <= 0.05:
+                depth = 5
+            elif time.time() - timer >= 5:
                 depth = 5
 
         click_mouse(move)
