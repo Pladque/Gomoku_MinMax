@@ -12,8 +12,9 @@ using namespace std;
 ///TODO
 /// IF SB HAS FE XXX OR X0XX SIGN IT AS DENGOREUS AND SCORE THEM WEL/BADLY!
 /// MANAGE TURN IN SCORE BOARD
+/// I calc some duplicates f.e in 7+0 == 7-0
 
-int ScoreBoard(char board[15][15], char& maximaler, char& minimaler);
+int ScoreBoard(char board[15][15], char& maximaler, char& minimaler, char next_turn = 'O');
 int EvalBoard(char board[15][15], char& maximaler, char& minimaler);
 void GetAllMoves(char board[15][15], bool moves[15][15]);
 char GetWinner(char board[15][15]);
@@ -91,10 +92,11 @@ int FindBestMove(char board[15][15], char turn, int depth, int alpha, int beta, 
 					{
 						return bestscore;
 					}
-				}if (j != 0 && i != 0)
+				}if (j != 0 || i != 0)
 				{
 					if (all_moves[seven_plus_j][seven_minus_i])
 					{
+						
 						eval = FindBestMove(my_board, minimaler, depth - 1, alpha, beta, maximaler, minimaler, seven_plus_j, seven_minus_i);
 						bestscore = max(eval, bestscore);
 						alpha = max(eval, alpha);
@@ -149,7 +151,7 @@ int FindBestMove(char board[15][15], char turn, int depth, int alpha, int beta, 
 						return bestscore;
 					}
 				}
-				if (j != 0 && i != 0)
+				if (j != 0 || i != 0)
 				{
 					if (all_moves[seven_plus_j][seven_minus_i])
 					{
@@ -403,7 +405,7 @@ int EvalBoard(char board[15][15], char& maximaler, char& minimaler)
 	return ScoreBoard(board, maximaler, minimaler, 'O');
 }
 
-int ScoreBoard(char board[15][15], char& maximaler, char& minimaler, char next_turn = 'O') //AI +, player -
+int ScoreBoard(char board[15][15], char& maximaler, char& minimaler, char next_turn) //AI +, player -
 {
 	int i_minus_sth[4];
 	int score = 0;
@@ -724,4 +726,3 @@ int main()
 }
 
 //board to test: 000000000000000000000000000000000000000000000000000000000000000000000X000000000000XO00000000000OOO000000000000XOX000000000000O0X00000000000XO0X0000000000000000000000000000000000000000000000000000000000000000000000000000000000
-// v2:  000000000000000000000000000000000000000000000000000000000000000000000000000000000X0000000000000OXXX000000000000XOX00000000000OOX0X000000000000O00000000000000O00000000000000O00000000000000O0000000000000000000000000000000000000

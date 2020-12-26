@@ -14,8 +14,8 @@ from pynput.mouse import Button, Controller
 
 BLACK = (40, 40, 40)
 WHITE = (243, 243, 243)
-AI = BLACK
-OPPONENT = WHITE
+AI = WHITE
+OPPONENT = BLACK
 
 mouse = Controller()
 
