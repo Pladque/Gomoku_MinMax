@@ -12,7 +12,7 @@ using namespace std;
 ///TODO
 /// IF SB HAS FE XXX OR X0XX SIGN IT AS DENGOREUS AND SCORE THEM WEL/BADLY!
 /// MANAGE TURN IN SCORE BOARD
-/// I calc some duplicates f.e in 7+0 == 7-0
+/// I calc some duplicates f.e in 7+0 = 7-0
 
 int ScoreBoard(char board[15][15], char& maximaler, char& minimaler, char next_turn = 'O');
 int EvalBoard(char board[15][15], char& maximaler, char& minimaler);
@@ -50,11 +50,6 @@ int FindBestMove(char board[15][15], char turn, int depth, int alpha, int beta, 
 			return EvalBoard(board, maximaler, minimaler);
 	}
 
-	//if (winner != '0')
-	//{
-	//	return (winner == maximaler) ? INT_MAX : INT_MIN;
-	//}
-
 	char my_board[15][15];
 	memcpy(my_board, board, 225);
 
@@ -82,21 +77,73 @@ int FindBestMove(char board[15][15], char turn, int depth, int alpha, int beta, 
 			{
 				seven_minus_j = 7 - j;
 				seven_plus_j = 7 + j;
-
-				if (all_moves[seven_minus_j][seven_minus_i])
+				if (j == 0 && i == 0)
 				{
-					eval = FindBestMove(my_board, minimaler, depth - 1, alpha, beta, maximaler, minimaler, seven_minus_j, seven_minus_i);
-					bestscore = max(eval, bestscore);
-					alpha = max(eval, alpha);
-					if (beta <= alpha)
+					if (all_moves[seven_minus_j][seven_minus_i])
 					{
-						return bestscore;
+						eval = FindBestMove(my_board, minimaler, depth - 1, alpha, beta, maximaler, minimaler, seven_minus_j, seven_minus_i);
+						bestscore = max(eval, bestscore);
+						alpha = max(eval, alpha);
+						if (beta <= alpha)
+						{
+							return bestscore;
+						}
 					}
-				}if (j != 0 || i != 0)
+				}
+				else if (j == 0 && i != 0)
 				{
 					if (all_moves[seven_plus_j][seven_minus_i])
 					{
-						
+
+						eval = FindBestMove(my_board, minimaler, depth - 1, alpha, beta, maximaler, minimaler, seven_plus_j, seven_minus_i);
+						bestscore = max(eval, bestscore);
+						alpha = max(eval, alpha);
+						if (beta <= alpha)
+						{
+							return bestscore;
+						}
+					}
+					if (all_moves[seven_minus_j][seven_plus_i])
+					{
+						eval = FindBestMove(my_board, minimaler, depth - 1, alpha, beta, maximaler, minimaler, seven_minus_j, seven_plus_i);
+						bestscore = max(eval, bestscore);
+						alpha = max(eval, alpha);
+						if (beta <= alpha)
+						{
+							return bestscore;
+						}
+					}
+				}
+				else if (j != 0 && i == 0)
+				{
+					if (all_moves[seven_plus_j][seven_plus_i])
+					{
+						eval = FindBestMove(my_board, minimaler, depth - 1, alpha, beta, maximaler, minimaler, seven_plus_j, seven_plus_i);
+						bestscore = max(eval, bestscore);
+						alpha = max(eval, alpha);
+						if (beta <= alpha)
+						{
+							return bestscore;
+						}
+					}
+
+					if (all_moves[seven_minus_j][seven_plus_i])
+					{
+						eval = FindBestMove(my_board, minimaler, depth - 1, alpha, beta, maximaler, minimaler, seven_minus_j, seven_plus_i);
+						bestscore = max(eval, bestscore);
+						alpha = max(eval, alpha);
+						if (beta <= alpha)
+						{
+							return bestscore;
+						}
+					}
+
+				}
+				else
+				{
+					if (all_moves[seven_plus_j][seven_minus_i])
+					{
+
 						eval = FindBestMove(my_board, minimaler, depth - 1, alpha, beta, maximaler, minimaler, seven_plus_j, seven_minus_i);
 						bestscore = max(eval, bestscore);
 						alpha = max(eval, alpha);
@@ -125,7 +172,18 @@ int FindBestMove(char board[15][15], char turn, int depth, int alpha, int beta, 
 							return bestscore;
 						}
 					}
+					if (all_moves[seven_minus_j][seven_minus_i])
+					{
+						eval = FindBestMove(my_board, minimaler, depth - 1, alpha, beta, maximaler, minimaler, seven_minus_j, seven_minus_i);
+						bestscore = max(eval, bestscore);
+						alpha = max(eval, alpha);
+						if (beta <= alpha)
+						{
+							return bestscore;
+						}
+					}
 				}
+
 			}
 		}
 	}
@@ -141,18 +199,77 @@ int FindBestMove(char board[15][15], char turn, int depth, int alpha, int beta, 
 				seven_minus_j = 7 - j;
 				seven_plus_j = 7 + j;
 
-				if (all_moves[seven_minus_j][seven_minus_i])
+				if (j == 0 && i == 0)
 				{
-					eval = FindBestMove(my_board, maximaler, depth - 1, alpha, beta, maximaler, minimaler, seven_minus_j, seven_minus_i);
-					bestscore = min(eval, bestscore);
-					beta = min(eval, beta);
-					if (beta <= alpha)
+					if (all_moves[seven_minus_j][seven_minus_i])
 					{
-						return bestscore;
+						eval = FindBestMove(my_board, maximaler, depth - 1, alpha, beta, maximaler, minimaler, seven_minus_j, seven_minus_i);
+						bestscore = min(eval, bestscore);
+						beta = min(eval, beta);
+						if (beta <= alpha)
+						{
+							return bestscore;
+						}
 					}
 				}
-				if (j != 0 || i != 0)
+				if (j == 0 && i != 0)
 				{
+					if (all_moves[seven_plus_j][seven_minus_i])
+					{
+						eval = FindBestMove(my_board, maximaler, depth - 1, alpha, beta, maximaler, minimaler, seven_plus_j, seven_minus_i);
+						bestscore = min(eval, bestscore);
+						beta = min(eval, beta);
+						if (beta <= alpha)
+						{
+							return bestscore;
+						}
+					}
+					if (all_moves[seven_minus_j][seven_plus_i])
+					{
+						eval = FindBestMove(my_board, maximaler, depth - 1, alpha, beta, maximaler, minimaler, seven_minus_j, seven_plus_i);
+						bestscore = min(eval, bestscore);
+						beta = min(eval, beta);
+						if (beta <= alpha)
+						{
+							return bestscore;
+						}
+					}
+				}
+				if (j != 0 && i == 0)
+				{
+					if (all_moves[seven_plus_j][seven_plus_i])
+					{
+						eval = FindBestMove(my_board, maximaler, depth - 1, alpha, beta, maximaler, minimaler, seven_plus_j, seven_plus_i);
+						bestscore = min(eval, bestscore);
+						beta = min(eval, beta);
+						if (beta <= alpha)
+						{
+							return bestscore;
+						}
+					}
+					if (all_moves[seven_minus_j][seven_plus_i])
+					{
+						eval = FindBestMove(my_board, maximaler, depth - 1, alpha, beta, maximaler, minimaler, seven_minus_j, seven_plus_i);
+						bestscore = min(eval, bestscore);
+						beta = min(eval, beta);
+						if (beta <= alpha)
+						{
+							return bestscore;
+						}
+					}
+				}
+				else
+				{
+					if (all_moves[seven_minus_j][seven_minus_i])
+					{
+						eval = FindBestMove(my_board, maximaler, depth - 1, alpha, beta, maximaler, minimaler, seven_minus_j, seven_minus_i);
+						bestscore = min(eval, bestscore);
+						beta = min(eval, beta);
+						if (beta <= alpha)
+						{
+							return bestscore;
+						}
+					}
 					if (all_moves[seven_plus_j][seven_minus_i])
 					{
 						eval = FindBestMove(my_board, maximaler, depth - 1, alpha, beta, maximaler, minimaler, seven_plus_j, seven_minus_i);
