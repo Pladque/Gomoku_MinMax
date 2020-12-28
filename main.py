@@ -11,6 +11,7 @@ import os
 from subprocess import Popen, PIPE
 from termcolor import colored
 from pynput.mouse import Button, Controller
+import random
 
 BLACK = (40, 40, 40)
 WHITE = (243, 243, 243)
@@ -146,8 +147,22 @@ def print_curr_board(board_list:list, move:int):
         print()
 
 def calc_x_y_substractors():
-    #LAST_4_MOVES
-    return 0, 14,0,14
+    x_l_substr = min(LAST_4_MOVES[0]%15, LAST_4_MOVES[1]%15, LAST_4_MOVES[2]%15, LAST_4_MOVES[3]%15)
+    x_r_substr = max(LAST_4_MOVES[0]%15, LAST_4_MOVES[1]%15, LAST_4_MOVES[2]%15, LAST_4_MOVES[3]%15)
+    y_l_substr = min(LAST_4_MOVES[0]/15, LAST_4_MOVES[1]/15, LAST_4_MOVES[2]/15, LAST_4_MOVES[3]/15)
+    y_r_substr = max(LAST_4_MOVES[0]/15, LAST_4_MOVES[1]/15, LAST_4_MOVES[2]/15, LAST_4_MOVES[3]/15)
+
+    x_l_substr -= 4
+    x_r_substr += 4
+    y_l_substr -= 4
+    y_r_substr += 4
+
+    if x_l_substr < 0: x_l_substr = 0
+    if x_r_substr > 14: x_r_substr = 14
+    if y_l_substr < 0: y_l_substr = 0
+    if y_r_substr > 14: y_r_substr = 14
+
+    return x_l_substr, x_r_substr, y_l_substr, y_r_substr
 
 def click_mouse(move:int):
     ind_x= move % 15
@@ -209,5 +224,9 @@ if __name__ == '__main__':
         if len(LAST_4_MOVES)>4:
             LAST_4_MOVES.pop(0)
         x_l_substr, x_r_range, y_l_substr, y_r_range = calc_x_y_substractors()
+
+        if random.randint(0,10) == 5:   #bc I want sometimes to check all board
+            depth = 5
+            x_l_substr, x_r_range, y_l_substr, y_r_range = 0,14,0,14
 
 #000000000000000000000000000000000000000000000000000000000000000O0O000000000000O0O000000000000OXXXXOX00000000OXOOOX0000000000000X00000000000000X0000000000000000000000000000000000000000000000000000000000000000000000000000000000
