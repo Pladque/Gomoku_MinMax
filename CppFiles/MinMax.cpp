@@ -12,7 +12,7 @@ using namespace std;
 ///TODO
 /// IF SB HAS FE XXX OR X0XX SIGN IT AS DENGOREUS AND SCORE THEM WEL/BADLY!
 /// MANAGE TURN IN SCORE BOARD
-/// I calc some duplicates f.e in 7+0 = 7-0
+/// I calc some duplicates f.i in 7+0 = 7-0
 
 int ScoreBoard(char board[15][15], char& maximaler, char& minimaler, char next_turn = 'O');
 int EvalBoard(char board[15][15], char& maximaler, char& minimaler);
@@ -526,6 +526,7 @@ int ScoreBoard(char board[15][15], char& maximaler, char& minimaler, char next_t
 {
 	int i_minus_sth[4];
 	int score = 0;
+	bool opponent_has_a_win_chance = false;
 
 	//int prev_score = 0;		//DEBUG
 	for (int i = 0; i <= 14; i++)
@@ -577,16 +578,34 @@ int ScoreBoard(char board[15][15], char& maximaler, char& minimaler, char next_t
 								score += (board[i][j] == maximaler) ? 8 : 16;
 							if (board[i_minus_sth[3]][j] == '0' || (i != 14 && board[i + 1][j] == '0'))
 							{
-								//cout << "here: " <<board[i][j]<< endl;
 								score += (board[i][j] == maximaler) ? 2 : -2;
 							}
-							if (board[i_minus_sth[3]][j] == board[i][j] || (i != 14 && board[i + 1][j] == board[i][j]))
-								score += (board[i][j] == maximaler) ? INT_MAX / 4 : INT_MIN / 2;
+							//if (board[i_minus_sth[3]][j] == board[i][j] || (i != 14 && board[i + 1][j] == board[i][j]))
+								//score += (board[i][j] == maximaler) ? INT_MAX / 4 : INT_MIN / 2;
+							//I opponent has 2 winning chances:
+							if (!opponent_has_a_win_chance)
+							{
+								opponent_has_a_win_chance = true;
+							}
+							else
+							{
+								score += (board[i][j] == maximaler) ? 1 : -256;
+							}
 						}
 						//check column X0XXX
 						else if (board[i_minus_sth[2]][j] == '0' && board[i_minus_sth[3]][j] == board[i][j])
 						{
 							score += (board[i][j] == maximaler) ? 2 : -2;
+							
+							//I opponent has 2 winning chances:
+							if (!opponent_has_a_win_chance)
+							{
+								opponent_has_a_win_chance = true;
+							}
+							else
+							{
+								score += (board[i][j] == maximaler) ? 1 : -256;
+							}
 						}
 					}
 					else if (board[i_minus_sth[2]][j] == board[i][j] && board[i_minus_sth[3]][j] == board[i][j])
@@ -595,11 +614,31 @@ int ScoreBoard(char board[15][15], char& maximaler, char& minimaler, char next_t
 						if (board[i][j] == board[i_minus_sth[0]][j] && board[i_minus_sth[1]][j] == '0')
 						{
 							score += (board[i][j] == maximaler) ? 2 : -2;
+
+							//I opponent has 2 winning chances:
+							if (!opponent_has_a_win_chance)
+							{
+								opponent_has_a_win_chance = true;
+							}
+							else
+							{
+								score += (board[i][j] == maximaler) ? 1 : -256;
+							}
 						}
 						//check column XXX0X
 						else if (board[i][j] == board[i_minus_sth[1]][j] && board[i_minus_sth[0]][j] == '0')
 						{
 							score += (board[i][j] == maximaler) ? 2 : -2;
+
+							//I opponent has 2 winning chances:
+							if (!opponent_has_a_win_chance)
+							{
+								opponent_has_a_win_chance = true;
+							}
+							else
+							{
+								score += (board[i][j] == maximaler) ? 1 : -256;
+							}
 						}
 					}
 				}
@@ -613,21 +652,39 @@ int ScoreBoard(char board[15][15], char& maximaler, char& minimaler, char next_t
 						//0XXXX or XXXX0 or win/lose
 						if (board[i][j - 2] == board[i][j - 3])
 						{
-							//cout << "here: " << board[i][j] << endl;
 							if (board[i][j - 4] == '0' && (j != 14 && board[i][j + 1] == '0'))
 								score += (board[i][j] == maximaler) ? 8 : 16;
-							if (board[i][j - 4] == board[i][j] || (j != 14 && board[i][j + 1] == board[i][j]))
-								score += (board[i][j] == maximaler) ? INT_MAX / 4 : INT_MIN / 2;
+							//if (board[i][j - 4] == board[i][j] || (j != 14 && board[i][j + 1] == board[i][j]))
+								//score += (board[i][j] == maximaler) ? INT_MAX / 4 : INT_MIN / 2;
 							if (board[i][j - 4] == '0' || (j != 14 && board[i][j + 1] == '0'))
 							{
-								//cout << "here: " << board[i][j] << endl;
 								score += (board[i][j] == maximaler) ? 2 : -2;
+							}
+
+							//I opponent has 2 winning chances:
+							if (!opponent_has_a_win_chance)
+							{
+								opponent_has_a_win_chance = true;
+							}
+							else
+							{
+								score += (board[i][j] == maximaler) ? 1 : -256;
 							}
 						}
 						//check column X0XXX
 						else if (board[i][j - 3] == '0' && board[i][j - 4] == board[i][j])
 						{
 							score += (board[i][j] == maximaler) ? 2 : -2;
+
+							//I opponent has 2 winning chances:
+							if (!opponent_has_a_win_chance)
+							{
+								opponent_has_a_win_chance = true;
+							}
+							else
+							{
+								score += (board[i][j] == maximaler) ? 1 : -256;
+							}
 						}
 					}
 					else if (board[i][j - 3] == board[i][j] && board[i][j - 4] == board[i][j])
@@ -636,11 +693,31 @@ int ScoreBoard(char board[15][15], char& maximaler, char& minimaler, char next_t
 						if (board[i][j] == board[i][j - 1] && board[i][j - 2] == '0')
 						{
 							score += (board[i][j] == maximaler) ? 2 : -2;
+
+							//I opponent has 2 winning chances:
+							if (!opponent_has_a_win_chance)
+							{
+								opponent_has_a_win_chance = true;
+							}
+							else
+							{
+								score += (board[i][j] == maximaler) ? 1 : -256;
+							}
 						}
 						//check column XXX0X
 						else if (board[i][j] == board[i][j - 2] && board[i][j - 1] == '0')
 						{
 							score += (board[i][j] == maximaler) ? 2 : -2;
+
+							//I opponent has 2 winning chances:
+							if (!opponent_has_a_win_chance)
+							{
+								opponent_has_a_win_chance = true;
+							}
+							else
+							{
+								score += (board[i][j] == maximaler) ? 1 : -256;
+							}
 						}
 
 					}
@@ -657,13 +734,33 @@ int ScoreBoard(char board[15][15], char& maximaler, char& minimaler, char next_t
 									score += (board[i][j] == maximaler) ? 8 : 16;
 								if (board[i_minus_sth[3]][j - 4] == '0' || board[i + 1][j + 1] == '0')
 									score += (board[i][j] == maximaler) ? 2 : -2;
-								if (board[i_minus_sth[3]][j - 4] == board[i][j] || board[i + 1][j + 1] == board[i][j])
-									score += (board[i][j] == maximaler) ? INT_MAX / 4 : INT_MIN / 2;
+								//if (board[i_minus_sth[3]][j - 4] == board[i][j] || board[i + 1][j + 1] == board[i][j])
+									//score += (board[i][j] == maximaler) ? INT_MAX / 4 : INT_MIN / 2;
+
+								//I opponent has 2 winning chances:
+								if (!opponent_has_a_win_chance)
+								{
+									opponent_has_a_win_chance = true;
+								}
+								else
+								{
+									score += (board[i][j] == maximaler) ? 1 : -256;
+								}
 							}
 							//checking diagnals X0XXX
 							else if (board[i_minus_sth[2]][j - 3] == '0' && board[i_minus_sth[3]][j - 4] == board[i][j])
 							{
 								score += (board[i][j] == maximaler) ? 2 : -2;
+
+								//I opponent has 2 winning chances:
+								if (!opponent_has_a_win_chance)
+								{
+									opponent_has_a_win_chance = true;
+								}
+								else
+								{
+									score += (board[i][j] == maximaler) ? 1 : -256;
+								}
 							}
 						}
 						if (board[i_minus_sth[2]][j - 3] == board[i][j] && board[i_minus_sth[3]][j - 4] == board[i][j])
@@ -672,11 +769,31 @@ int ScoreBoard(char board[15][15], char& maximaler, char& minimaler, char next_t
 							if (board[i][j] == board[i_minus_sth[0]][j - 1] && board[i_minus_sth[1]][j - 2] == '0')
 							{
 								score += (board[i][j] == maximaler) ? 2 : -2;
+
+								//I opponent has 2 winning chances:
+								if (!opponent_has_a_win_chance)
+								{
+									opponent_has_a_win_chance = true;
+								}
+								else
+								{
+									score += (board[i][j] == maximaler) ? 1 : -256;
+								}
 							}
 							//checking diagnals XXX0X
 							else if (board[i][j] == board[i_minus_sth[1]][j - 2] && board[i_minus_sth[0]][j - 1] == '0')
 							{
 								score += (board[i][j] == maximaler) ? 2 : -2;
+
+								//I opponent has 2 winning chances:
+								if (!opponent_has_a_win_chance)
+								{
+									opponent_has_a_win_chance = true;
+								}
+								else
+								{
+									score += (board[i][j] == maximaler) ? 1 : -256;
+								}
 							}
 						}
 					}
@@ -686,7 +803,6 @@ int ScoreBoard(char board[15][15], char& maximaler, char& minimaler, char next_t
 					{
 						if (board[i][j] == board[i + 1][j - 1] && board[i + 1][j - 1] == board[i + 2][j - 2])
 						{
-							//cout << "here: " << board[i][j] << endl;
 							//0XXXX or XXXX0 or win/lose
 							if (board[i + 2][j - 2] == board[i + 3][j - 3])
 							{
@@ -696,13 +812,33 @@ int ScoreBoard(char board[15][15], char& maximaler, char& minimaler, char next_t
 								{
 									score += (board[i][j] == maximaler) ? 2 : -2;
 								}
-								if (board[i + 4][j - 4] == board[i][j] || board[i - 1][j + 1] == board[i][j])
-									score += (board[i][j] == maximaler) ? INT_MAX / 4 : INT_MIN / 2;
+								//if (board[i + 4][j - 4] == board[i][j] || board[i - 1][j + 1] == board[i][j])
+									//score += (board[i][j] == maximaler) ? INT_MAX / 4 : INT_MIN / 2;
+
+								//I opponent has 2 winning chances:
+								if (!opponent_has_a_win_chance)
+								{
+									opponent_has_a_win_chance = true;
+								}
+								else
+								{
+									score += (board[i][j] == maximaler) ? 1 : -256;
+								}
 							}
 							//checking diagnals X0XXX
 							else if (board[i + 3][j - 3] == '0' && board[i + 4][j - 4] == board[i][j])
 							{
 								score += (board[i][j] == maximaler) ? 2 : -2;
+
+								//I opponent has 2 winning chances:
+								if (!opponent_has_a_win_chance)
+								{
+									opponent_has_a_win_chance = true;
+								}
+								else
+								{
+									score += (board[i][j] == maximaler) ? 1 : -256;
+								}
 							}
 						}
 						else if (board[i + 3][j - 3] == board[i][j] && board[i + 4][j - 4] == board[i][j])
@@ -711,21 +847,36 @@ int ScoreBoard(char board[15][15], char& maximaler, char& minimaler, char next_t
 							if (board[i][j] == board[i + 1][j - 1] && board[i + 2][j - 2] == '0')
 							{
 								score += (board[i][j] == maximaler) ? 2 : -2;
+
+								//I opponent has 2 winning chances:
+								if (!opponent_has_a_win_chance)
+								{
+									opponent_has_a_win_chance = true;
+								}
+								else
+								{
+									score += (board[i][j] == maximaler) ? 1 : -256;
+								}
 							}
 							//checking diagnals XX0XX
 							if (board[i][j] == board[i + 2][j - 2] && board[i + 1][j - 1] == '0')
 							{
 								score += (board[i][j] == maximaler) ? 2 : -2;
+
+								//I opponent has 2 winning chances:
+								if (!opponent_has_a_win_chance)
+								{
+									opponent_has_a_win_chance = true;
+								}
+								else
+								{
+									score += (board[i][j] == maximaler) ? 1 : -256;
+								}
 							}
 						}
 					}
 				}
 			}
-			//if (prev_score != score)
-			//{
-				//cout << i << "  " << j << endl;
-				//cout << score;
-			//}
 		}
 	}
 	return score;

@@ -11,7 +11,6 @@ import os
 from subprocess import Popen, PIPE
 from termcolor import colored
 from pynput.mouse import Button, Controller
-import random
 
 BLACK = (40, 40, 40)
 WHITE = (243, 243, 243)
@@ -101,8 +100,6 @@ def save_parameters_to_file(board_list:list, depth:int, left_x_substr:int, right
 
 def run_cpp():
     subprocess.check_call(['D:\Projects\PythonProjects\PrivateGithub\Tic-Tac-Toe_MinMax\MULTITHREAD tictactoe cpp 15x15.exe'])
-#o = subprocess.Popen(['cmd','/c',r'D:\Projects\PythonProjects\PrivateGithub\Tic-Tac-Toe_MinMax\EXE\MULTITHREAD tictactoe cpp 15x15.exe'])
-#o.wait()  
 
 def get_indexand_print_board_from_file(board_list:list):
     file_move_from_cpp_r = open("string_index_return.txt", 'r')
@@ -167,8 +164,6 @@ def calc_x_y_substractors():
 def click_mouse(move:int):
     ind_x= move % 15
     ind_y = int(move / 15)
-    print(ind_x)
-    print(ind_y)
     mouse.position = (CLICK_X_POSITIONS[ind_x],CLICK_Y_POSITIONS[ind_y])
     mouse.click(Button.left, 1)
 
@@ -181,11 +176,6 @@ def read_postions_to_click():
 
     f.close()
 
-
-#read file_move_from_cpp_r file
-#convert it to coords
-#click on right spot on screen
-
 if __name__ == '__main__':
     create_moves_base()
     read_postions_to_click()
@@ -196,12 +186,9 @@ if __name__ == '__main__':
         temp_board_str = get_curr_board(1)
         if temp_board_str == "-1":
             break
-        #print(list(temp_board_str))
-        #print(board_list)
         while ''.join(board_list) == temp_board_str:
             temp_board_str = get_curr_board(1)
         board_list = list(temp_board_str)
-        #move = find_in_previously_calculated(board_str)
         move = 0
         if ''.join(board_list) in MOVES_BASE.keys():
             move = MOVES_BASE[''.join(board_list)]
@@ -214,7 +201,7 @@ if __name__ == '__main__':
             run_cpp()
             move = get_indexand_print_board_from_file(board_list)
             if time.time() - timer <= 0.05:
-                depth = 5
+                depth = 7
             elif time.time() - timer >= 5:
                 depth = 5
 
@@ -228,5 +215,3 @@ if __name__ == '__main__':
         if random.randint(0,10) == 5:   #bc I want sometimes to check all board
             depth = 5
             x_l_substr, x_r_range, y_l_substr, y_r_range = 0,14,0,14
-
-#000000000000000000000000000000000000000000000000000000000000000O0O000000000000O0O000000000000OXXXXOX00000000OXOOOX0000000000000X00000000000000X0000000000000000000000000000000000000000000000000000000000000000000000000000000000
