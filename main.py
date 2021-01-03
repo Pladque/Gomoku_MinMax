@@ -1,7 +1,4 @@
-import pyautogui
-from PIL import Image
 import image_slicer
-import glob
 import time
 import numpy
 import pyscreenshot as ImageGrab
@@ -12,40 +9,32 @@ from subprocess import Popen, PIPE
 from termcolor import colored
 from pynput.mouse import Button, Controller
 
+# CONFIG SETTINGS #
+SS_DIR = "D:\Projects\PythonProjects\PrivateGithub\Tic-Tac-Toe_MinMax\ss.png"
+EXE_DIR = "D:\Projects\PythonProjects\PrivateGithub\Tic-Tac-Toe_MinMax\MULTITHREAD tictactoe cpp 15x15.exe"
 BLACK = (40, 40, 40)
 WHITE = (243, 243, 243)
+
 AI = BLACK
 OPPONENT = WHITE
 
 mouse = Controller()
-
-
-# TODO
-# rading from file previously calculated doesnt work sometimes idk why
-# open file once and save it to list, do not ope it every time
-# make loop except of making ss by maniually
-# make use of x and y substractors
-# make auto clicker
-
 MOVES_BASE = {}
 LAST_4_MOVES = []
 
-
+# Loading mouse coords for mouse #
 f = open("mouseClickPos.txt", 'r')
-
 lines = f.readlines()
 CLICK_X_POSITIONS = [int(coord) for coord in lines[0].replace('\n', '').split(" ")]
 CLICK_Y_POSITIONS = [int(coord) for coord in lines[1].split(" ")]
-
 f.close()
 
 def get_curr_board(ss_gap:int) ->str:
     time.sleep(ss_gap)
     SS = ImageGrab.grab(bbox=(410,130,963,685))
-    SS.save("D:\Projects\PythonProjects\PrivateGithub\Tic-Tac-Toe_MinMax\ss.png")
+    SS.save(SS_DIR)
 
-    #create board
-
+    #creating board
     SS = ImageGrab.grab(bbox=(410,130,963,685)).load()
     board_str = ""
     for y in FIELD_Y:
@@ -66,8 +55,6 @@ def create_moves_base():
         MOVES_BASE[line[:line.index(';')].replace(' ', '')] = int(line[line.index(';')+1:].replace(' ', '').replace('\n', ''))
     file_moves_data_r.close()
 
-
-#search board in file_moves_data_r
 def find_in_previously_calculated(board_str:str) -> int:
     file_moves_data_r = open("calculated_moves.txt", 'r')
     move = 0
@@ -99,7 +86,7 @@ def save_parameters_to_file(board_list:list, depth:int, left_x_substr:int, right
     file_board_w.close()
 
 def run_cpp():
-    subprocess.check_call(['D:\Projects\PythonProjects\PrivateGithub\Tic-Tac-Toe_MinMax\MULTITHREAD tictactoe cpp 15x15.exe'])
+    subprocess.check_call([EXE_DIR])
 
 def get_indexand_print_board_from_file(board_list:list):
     file_move_from_cpp_r = open("string_index_return.txt", 'r')
@@ -146,13 +133,13 @@ def print_curr_board(board_list:list, move:int):
 def calc_x_y_substractors():
     x_l_substr = min(LAST_4_MOVES[0]%15, LAST_4_MOVES[1]%15, LAST_4_MOVES[2]%15, LAST_4_MOVES[3]%15)
     x_r_substr = max(LAST_4_MOVES[0]%15, LAST_4_MOVES[1]%15, LAST_4_MOVES[2]%15, LAST_4_MOVES[3]%15)
-    y_l_substr = min(LAST_4_MOVES[0]/15, LAST_4_MOVES[1]/15, LAST_4_MOVES[2]/15, LAST_4_MOVES[3]/15)
-    y_r_substr = max(LAST_4_MOVES[0]/15, LAST_4_MOVES[1]/15, LAST_4_MOVES[2]/15, LAST_4_MOVES[3]/15)
+    y_l_substr = int(min(LAST_4_MOVES[0]/15, LAST_4_MOVES[1]/15, LAST_4_MOVES[2]/15, LAST_4_MOVES[3]/15))
+    y_r_substr = int(max(LAST_4_MOVES[0]/15, LAST_4_MOVES[1]/15, LAST_4_MOVES[2]/15, LAST_4_MOVES[3]/15))
 
-    x_l_substr -= 4
-    x_r_substr += 4
-    y_l_substr -= 4
-    y_r_substr += 4
+    x_l_substr -= 6
+    x_r_substr += 6
+    y_l_substr -= 6
+    y_r_substr += 6
 
     if x_l_substr < 0: x_l_substr = 0
     if x_r_substr > 14: x_r_substr = 14
@@ -182,36 +169,51 @@ if __name__ == '__main__':
     board_list = []
     x_l_substr, x_r_range, y_l_substr, y_r_range =  0, 14, 0, 14
     depth = 5
+    turn_counter = 0
+    
     while True:
+        turn_counter += 1
         temp_board_str = get_curr_board(1)
         if temp_board_str == "-1":
             break
+
+        # waiting for opponent move #
         while ''.join(board_list) == temp_board_str:
             temp_board_str = get_curr_board(1)
+            time.sleep(0.1)
+
         board_list = list(temp_board_str)
         move = 0
+
+        # making move from database (if present)
         if ''.join(board_list) in MOVES_BASE.keys():
             move = MOVES_BASE[''.join(board_list)]
-            board_list[move] = 'X'
             print_curr_board(board_list, move)
+        #calculating best move
         else:
             print("DEPTH: ", depth)
             save_parameters_to_file(board_list, depth, x_l_substr, x_r_range, y_l_substr, y_r_range)
             timer = time.time()
             run_cpp()
             move = get_indexand_print_board_from_file(board_list)
-            if time.time() - timer <= 0.05:
+            if time.time() - timer <= 0.06:
                 depth = 7
-            elif time.time() - timer >= 5:
+            elif time.time() - timer >= 3:
                 depth = 5
 
         click_mouse(move)
-
+        #calculating substractors
         LAST_4_MOVES.append(move)
         if len(LAST_4_MOVES)>4:
             LAST_4_MOVES.pop(0)
-        x_l_substr, x_r_range, y_l_substr, y_r_range = calc_x_y_substractors()
-
-        if random.randint(0,10) == 5:   #bc I want sometimes to check all board
-            depth = 5
+            x_l_substr, x_r_range, y_l_substr, y_r_range = calc_x_y_substractors()
+        else:
             x_l_substr, x_r_range, y_l_substr, y_r_range = 0,14,0,14
+
+        if turn_counter % 5 == 0:   #bc I want sometimes to check all board
+            depth = 5
+            print(colored("DEPTH: ", 'green'), end = '')
+            print(colored(depth, 'green'))
+            x_l_substr, x_r_range, y_l_substr, y_r_range = 0,14,0,14
+        
+        board_list[move] = 'X'
