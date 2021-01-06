@@ -473,7 +473,7 @@ char GetWinner(char board[15][15])
 						{
 							return board[i][j];
 						}
-						if (i == 4 && j == 4 && board[i][j] != board[5][5])
+						if ((i == 4 || j == 4) && board[i][j] != board[i+1][j+1])
 						{
 							return board[i][j];
 						}
@@ -486,7 +486,7 @@ char GetWinner(char board[15][15])
 						{
 							return board[i][j];
 						}
-						if (i == 10 && j == 4 && board[i][j] != board[9][5])
+						if ((i == 10 || j == 4) && board[i][j] != board[i-1][j+1])
 						{
 							return board[i][j];
 						}
