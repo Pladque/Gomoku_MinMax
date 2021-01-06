@@ -15,8 +15,8 @@ EXE_DIR = "D:\Projects\PythonProjects\PrivateGithub\Tic-Tac-Toe_MinMax\MULTITHRE
 BLACK = (40, 40, 40)
 WHITE = (243, 243, 243)
 
-AI = BLACK
-OPPONENT = WHITE
+AI = WHITE
+OPPONENT = BLACK
 
 mouse = Controller()
 MOVES_BASE = {}
@@ -88,7 +88,7 @@ def save_parameters_to_file(board_list:list, depth:int, left_x_substr:int, right
 def run_cpp():
     subprocess.check_call([EXE_DIR])
 
-def get_indexand_print_board_from_file(board_list:list):
+def get_index_from_file(board_list:list):
     file_move_from_cpp_r = open("string_index_return.txt", 'r')
     ind = file_move_from_cpp_r.readline()
     ind = int(ind)
@@ -98,6 +98,7 @@ def get_indexand_print_board_from_file(board_list:list):
     file_move_from_cpp_r.close()
     board_list[ind_y * 15 + ind_x] = 'X'        
 
+    '''
     for y in range(15):
         for x in range(15):
             if y*15 + x == ind_y * 15 + ind_x:
@@ -112,6 +113,7 @@ def get_indexand_print_board_from_file(board_list:list):
                 
         print()
     print()
+    '''
     return ind_y * 15 + ind_x
 
 def print_curr_board(board_list:list, move:int):
@@ -195,7 +197,7 @@ if __name__ == '__main__':
             save_parameters_to_file(board_list, depth, x_l_substr, x_r_range, y_l_substr, y_r_range)
             timer = time.time()
             run_cpp()
-            move = get_indexand_print_board_from_file(board_list)
+            move = get_index_from_file(board_list)
             if time.time() - timer <= 0.06:
                 depth = 7
             elif time.time() - timer >= 3:
