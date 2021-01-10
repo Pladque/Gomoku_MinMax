@@ -10,13 +10,13 @@ from termcolor import colored
 from pynput.mouse import Button, Controller
 
 # CONFIG SETTINGS #
-SS_DIR = "D:\Projects\PythonProjects\PrivateGithub\Tic-Tac-Toe_MinMax\ss.png"
-EXE_DIR = "D:\Projects\PythonProjects\PrivateGithub\Tic-Tac-Toe_MinMax\MULTITHREAD tictactoe cpp 15x15.exe"
+SS_DIR = str(os.path.dirname(os.path.realpath(__file__))) + "\ss.png"       
+EXE_DIR = str(os.path.dirname(os.path.realpath(__file__))) + "\MULTITHREAD tictactoe cpp 15x15.exe"       
 BLACK = (40, 40, 40)
 WHITE = (243, 243, 243)
 
-AI = WHITE
-OPPONENT = BLACK
+AI = BLACK
+OPPONENT = WHITE
 
 mouse = Controller()
 MOVES_BASE = {}
