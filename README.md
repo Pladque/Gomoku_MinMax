@@ -12,5 +12,6 @@ How to run?
 What i have learned:
   - Basics of multithreading
   - Basics of easy image recognation
+  
 I also learned that if you give your program control over your mouse you should had implemented an exit button.
   
